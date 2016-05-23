@@ -1,0 +1,25 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (ZenVM_redesign.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  vm.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\vm.cpp(139): warning C4244: '=': conversion from 'uint64_t' to 'unsigned long', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\vm.cpp(212): warning C4244: 'argument': conversion from 'std::streamoff' to 'const unsigned long', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\vm.cpp(319): warning C4244: 'argument': conversion from 'std::streamoff' to 'unsigned long', possible loss of data
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(46): warning C4800: 'const double': forcing value to bool 'true' or 'false' (performance warning)
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(266): note: see reference to function template instantiation 'bool zenith::ValueUtil::changeType<bool>(boost::any &)' being compiled
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\vm.cpp(391): note: see reference to function template instantiation 'T zenith::Value::getData<bool>(void)' being compiled
+          with
+          [
+              T=bool
+          ]
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(54): warning C4800: 'const long double': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(63): warning C4800: 'const float': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(81): warning C4800: 'const int': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(90): warning C4800: 'const unsigned int': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(99): warning C4800: 'const short': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(108): warning C4800: 'const unsigned short': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(117): warning C4800: 'const char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(126): warning C4800: 'const unsigned char': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(135): warning C4800: 'const long': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(144): warning C4800: 'const unsigned long': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(153): warning C4800: 'const __int64': forcing value to bool 'true' or 'false' (performance warning)
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\runtime\value.h(161): warning C4800: 'const unsigned __int64': forcing value to bool 'true' or 'false' (performance warning)
+  zenith.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\zenith\Debug\zenith.exe

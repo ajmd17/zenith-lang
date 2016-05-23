@@ -1,0 +1,10 @@
+﻿  parser.cpp
+compiler\parser.cpp(34): warning C4018: '<': signed/unsigned mismatch
+compiler\parser.cpp(59): warning C4018: '<': signed/unsigned mismatch
+compiler\parser.cpp(67): warning C4018: '>=': signed/unsigned mismatch
+  Generating code
+  1 of 5765 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    58 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  zenith.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\zenith\Release\zenith.exe
