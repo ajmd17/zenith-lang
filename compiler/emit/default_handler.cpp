@@ -104,7 +104,7 @@ namespace zenith
 				accept(dynamic_cast<ForLoopAst*>(node));
 				break;
 			default:
-				state.errors.push_back({ ErrorType::INTERNAL_ERROR, node->location, state.filepath });
+				state.errors.push_back({ ErrorType::INTERNAL_ERROR, node->location });
 				break;
 			}
 		}
@@ -118,7 +118,7 @@ namespace zenith
 		void DefaultAstHandler::accept(ImportAst *node)
 		{
 			if (level != -1)
-				state.errors.push_back({ ErrorType::IMPORT_OUTSIDE_GLOBAL, node->location, state.filepath });
+				state.errors.push_back({ ErrorType::IMPORT_OUTSIDE_GLOBAL, node->location });
 
 			if (node->isModuleImport)
 			{
@@ -134,7 +134,7 @@ namespace zenith
 				{
 					std::ifstream t(importModulePath);
 					if (!t.is_open())
-						state.errors.push_back({ ErrorType::MODULE_NOT_FOUND, node->location, state.filepath, node->value });
+						state.errors.push_back({ ErrorType::MODULE_NOT_FOUND, node->location, node->value });
 					else
 					{
 						std::string str((std::istreambuf_iterator<char>(t)),
@@ -275,7 +275,7 @@ namespace zenith
 				addCommand<OpBinaryBitOrAssign>();
 				break;*/
 			default:
-				state.errors.push_back(Error(ErrorType::ILLEGAL_OPERATOR, node->location, state.filepath, getOperatorStr(op)));
+				state.errors.push_back(Error(ErrorType::ILLEGAL_OPERATOR, node->location, getOperatorStr(op)));
 				break;
 			}
 		}
@@ -299,19 +299,71 @@ namespace zenith
 				addCommand<OpUnaryMinus>();
 				break;
 			default:
-				state.errors.push_back(Error(ErrorType::ILLEGAL_OPERATOR, node->location, state.filepath, getOperatorStr(op)));
+				state.errors.push_back(Error(ErrorType::ILLEGAL_OPERATOR, node->location, getOperatorStr(op)));
 				break;
 			}
 		}
 
 		void DefaultAstHandler::accept(MemberAccessAst *node)
 		{
+			auto *defaultModule = dynamic_cast<ModuleAst*>(node->module);
+
 			AstNode *current = node;
 			while (current != nullptr && current->nodeType == AstNodeType::AST_MEMBER_ACCESS)
 			{
 				auto *member = dynamic_cast<MemberAccessAst*>(current);
+
+				bool isModuleName, isVariableName, isFunctionName;
+
+				// search to find module
+				if (member->identifier == defaultModule->moduleName)
+				{
+					/* TODO: maybe add a warning that it is 
+					 redundant to mention module name? */
+
+					isModuleName = true;
+				}
+				else
+				{
+					for (auto &&module : externalModules)
+					{
+						if (member->identifier == module.second->moduleName)
+						{
+							isModuleName = true;
+							defaultModule = module.second.get();
+							break;
+						}
+					}
+				}
+
+				// mangle name
+				std::string mangledName = makeIdentifier(defaultModule, member->identifier);
+
+				if (varInScope(mangledName))
+					isVariableName = true;
+
+				FunctionDefinitionAst *tmpFn = nullptr;
+				if (fnInScope(mangledName, 0, tmpFn) != ReturnMessage::FN_NOT_FOUND)
+					isFunctionName = true;
+
+				if (!(isModuleName || isVariableName || isFunctionName))
+					state.errors.push_back({ ErrorType::UNDECLARED_IDENTIFIER, member->location, member->identifier });
+				else if (isModuleName)
+				{
+				}
+				else if (isVariableName)
+				{
+				}
+				else if (isFunctionName)
+				{
+				}
+				else
+					state.errors.push_back({ ErrorType::AMBIGUOUS_IDENTIFIER, member->location, member->identifier });
+					
 				current = member->next.get();
 			}
+			// change the node's module
+			current->module = defaultModule;
 
 			if (current != nullptr)
 			{
@@ -324,35 +376,41 @@ namespace zenith
 					return;
 				}
 				default:
-					state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, current->location, state.filepath });
+					state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, current->location });
 					break;
 				}
 			}
 			else
-				state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, node->location, state.filepath });
+				state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, node->location });
 		}
 
 		void DefaultAstHandler::accept(VariableDeclarationAst *node)
 		{
 			Level &currentLevel = levels[level];
-			if (std::find(currentLevel.variableNames.begin(), currentLevel.variableNames.end(), node->name)
+			std::string identName = makeIdentifier(node->module, node->name);
+
+			if (std::find(currentLevel.variableNames.begin(), currentLevel.variableNames.end(), identName)
 				!= currentLevel.variableNames.end())
 			{
-				state.errors.push_back(Error(ErrorType::VARIABLE_REDECLARED, node->location, state.filepath, node->name));
+				state.errors.push_back(Error(ErrorType::REDECLARED_IDENTIFIER, 
+					node->location,
+					node->name));
 			}
 			else
 			{
-				currentLevel.variableNames.push_back(node->name);
-				addCommand<VarCreate>(VarType::VAR_TYPE_ANY, node->name);
+				currentLevel.variableNames.push_back(identName);
+				addCommand<VarCreate>(VarType::VAR_TYPE_ANY, identName);
 			}
 		}
 
 		void DefaultAstHandler::accept(VariableAst *node)
 		{
-			if (!varInScope(node->name))
-				state.errors.push_back(Error(ErrorType::VARIABLE_UNDECLARED, node->location, state.filepath, node->name));
+			std::string identName = makeIdentifier(node->module, node->name);
+
+			if (!varInScope(identName))
+				state.errors.push_back(Error(ErrorType::UNDECLARED_IDENTIFIER, node->location, node->name));
 			else
-				addCommand<LoadVariable>(node->name);
+				addCommand<LoadVariable>(identName);
 		}
 
 		void DefaultAstHandler::accept(IntegerAst *node)
@@ -387,7 +445,8 @@ namespace zenith
 
 		void DefaultAstHandler::accept(FunctionDefinitionAst *node)
 		{
-			levels[level].functionDeclarations.push_back(node);
+			std::string mangledName = makeIdentifier(node->module, node->name);
+			levels[level].functionDeclarations.insert({ mangledName, node });
 
 			functionDefBlockIds[node] = blockIdNum;
 			addCommand<CreateBlock>(BlockType::FUNCTION_BLOCK,
@@ -400,8 +459,10 @@ namespace zenith
 			if (fnBody->children.size() == 0 ||
 				fnBody->children.back()->nodeType != AstNodeType::AST_RETURN_STATEMENT)
 			{
-				auto returnValue = std::make_unique<NullAst>(node->block->location);
-				auto returnStatement = std::make_unique<ReturnStatementAst>(node->block->location, std::move(returnValue));
+				auto returnValue = std::make_unique<NullAst>(node->block->location, node->module);
+				auto returnStatement = std::make_unique<ReturnStatementAst>(node->block->location, 
+					node->module, 
+					std::move(returnValue));
 				fnBody->addChild(std::move(returnStatement));
 			}
 
@@ -425,14 +486,16 @@ namespace zenith
 			FunctionDefinitionAst *definition = nullptr;
 			ReturnMessage msg;
 
-			msg = fnInScope(node->name, node->arguments.size(), definition);
+			std::string mangledName = makeIdentifier(node->module, node->name);
+
+			msg = fnInScope(mangledName, node->arguments.size(), definition);
 
 			if (msg == FN_NOT_FOUND)
-				state.errors.push_back({ ErrorType::FUNCTION_NOT_FOUND, node->location, state.filepath, node->name });
+				state.errors.push_back({ ErrorType::FUNCTION_NOT_FOUND, node->location, node->name });
 			else if (msg == FN_TOO_MANY_ARGS)
-				state.errors.push_back({ ErrorType::TOO_MANY_ARGS, node->location, state.filepath, node->name });
+				state.errors.push_back({ ErrorType::TOO_MANY_ARGS, node->location, node->name });
 			else if (msg == FN_TOO_FEW_ARGS)
-				state.errors.push_back({ ErrorType::TOO_FEW_ARGS, node->location, state.filepath, node->name });
+				state.errors.push_back({ ErrorType::TOO_FEW_ARGS, node->location, node->name });
 			else if (msg == FN_FOUND)
 			{
 				for (int i = node->arguments.size() - 1; i >= 0; i--)
@@ -450,7 +513,7 @@ namespace zenith
 				if (!definition->isNative)
 					addCommand<CallFunction>(functionDefBlockIds[definition]);
 				else
-					addCommand<CallNativeFunction>(definition->name, functionDefBlockIds[definition], definition->arguments.size());
+					addCommand<CallNativeFunction>(node->name, functionDefBlockIds[definition], definition->arguments.size());
 			}
 		}
 
@@ -531,18 +594,18 @@ namespace zenith
 			{
 				Level &currentLevel = levels.at(startLevel);
 
-				for (int i = 0; i < currentLevel.functionDeclarations.size(); i++)
+				for (auto &&def : currentLevel.functionDeclarations)
 				{
-					if (currentLevel.functionDeclarations[i]->name == name)
+					if (def.first == name)
 					{
-						if (currentLevel.functionDeclarations[i]->arguments.size() == nArgs)
+						if (def.second->arguments.size() == nArgs)
 						{
-							out = currentLevel.functionDeclarations[i];
+							out = def.second;
 							return FN_FOUND;
 						}
-						else if (currentLevel.functionDeclarations[i]->arguments.size() < nArgs)
+						else if (def.second->arguments.size() < nArgs)
 							status = FN_TOO_MANY_ARGS;
-						else if (currentLevel.functionDeclarations[i]->arguments.size() > nArgs)
+						else if (def.second->arguments.size() > nArgs)
 							status = FN_TOO_FEW_ARGS;
 					}
 				}
@@ -568,7 +631,22 @@ namespace zenith
 			addCommand<DecreaseBlockLevel>();
 		}
 
-		void DefaultAstHandler::defineFunction(const std::string &name, size_t numArgs)
+		std::string DefaultAstHandler::makeIdentifier(AstNode *moduleAst, const std::string &original)
+		{
+			if (!moduleAst || moduleAst->nodeType != AstNodeType::AST_MODULE)
+				throw std::runtime_error("Invalid module");
+
+			auto *module = dynamic_cast<ModuleAst*>(moduleAst);
+			if (!module)
+				throw std::runtime_error("Not a module");
+
+			std::string &moduleName = module->moduleName;
+
+			std::string result = "$_" + moduleName + "_" + original;
+			return result;
+		}
+
+		void DefaultAstHandler::defineFunction(const std::string &name, const std::string &moduleName, size_t numArgs)
 		{
 			std::vector<std::string> args;
 			for (size_t i = 0; i < numArgs; i++)
@@ -577,14 +655,18 @@ namespace zenith
 				args.push_back(arg);
 			}
 
+			std::string mangledName = "$_" + moduleName + "_" + name;
+
 			std::unique_ptr<FunctionDefinitionAst> definition
 				= std::make_unique<FunctionDefinitionAst>(SourceLocation(-1, -1, ""),
-					name,
+					nullptr,
+					mangledName,
 					args,
 					nullptr,
 					true);
+
 			nativeFunctions.push_back(std::move(definition));
-			levels[level].functionDeclarations.push_back(nativeFunctions.back().get());
+			levels[level].functionDeclarations.insert({ mangledName, nativeFunctions.back().get() });
 
 			functionDefBlockIds[nativeFunctions.back().get()] = blockIdNum;
 			addCommand<CreateBlock>(BlockType::FUNCTION_BLOCK,

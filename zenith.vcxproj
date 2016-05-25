@@ -155,7 +155,6 @@
     <ClInclude Include="compiler\emit\default_handler.h" />
     <ClInclude Include="compiler\emit\bytecode.h" />
     <ClInclude Include="compiler\emit\emitter.h" />
-    <ClInclude Include="compiler\emit\module.h" />
     <ClInclude Include="compiler\errors.h" />
     <ClInclude Include="compiler\keywords.h" />
     <ClInclude Include="compiler\lexer.h" />

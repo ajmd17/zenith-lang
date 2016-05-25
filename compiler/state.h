@@ -19,7 +19,7 @@ namespace zenith
 
 			int position = 0;
 
-			std::string filepath;
+			//std::string filepath;
 		};
 
 		struct LexerState
@@ -34,7 +34,7 @@ namespace zenith
 
 			std::vector<Error> errors;
 
-			std::string filepath;
+			//std::string filepath;
 		};
 	}
 }

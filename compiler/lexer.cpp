@@ -10,7 +10,7 @@ namespace zenith
 		Lexer::Lexer(const std::string &source, const std::string &filepath)
 		{
 			this->state.source = source;
-			this->state.filepath = filepath;
+			state.location.file = filepath;
 			state.position = 0;
 			state.sourceLen = source.length();
 			state.location = SourceLocation(0, 0, filepath);
@@ -104,7 +104,7 @@ namespace zenith
 			}
 			else
 			{
-				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, state.location, state.filepath, readChar() });
+				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, state.location, readChar() });
 
 				return{};
 			}
@@ -175,7 +175,7 @@ namespace zenith
 				}
 
 				if (readChar() != delimiter)
-					state.errors.push_back({ ErrorType::UNTERMINATED_STRING_LITERAL, state.location, state.filepath });
+					state.errors.push_back({ ErrorType::UNTERMINATED_STRING_LITERAL, state.location });
 
 				return{ TokenType::TK_STRING, str, state.location };
 			}
@@ -209,7 +209,7 @@ namespace zenith
 				readChar() == delimiter &&
 				readChar() == delimiter))
 			{
-				state.errors.push_back({ ErrorType::UNTERMINATED_STRING_LITERAL, state.location, state.filepath });
+				state.errors.push_back({ ErrorType::UNTERMINATED_STRING_LITERAL, state.location });
 			}
 
 			return{ TokenType::TK_STRING, str, state.location };
@@ -296,7 +296,7 @@ namespace zenith
 				}
 			}
 
-			state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, state.location, state.filepath });
+			state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, state.location });
 		}
 
 		char Lexer::readChar()
@@ -349,7 +349,7 @@ namespace zenith
 				return '\\';
 			}
 
-			state.errors.push_back({ ErrorType::UNRECOGNIZED_ESCAPE_SEQUENCE, state.location, state.filepath, ch });
+			state.errors.push_back({ ErrorType::UNRECOGNIZED_ESCAPE_SEQUENCE, state.location, ch });
 			return '\0';
 		}
 

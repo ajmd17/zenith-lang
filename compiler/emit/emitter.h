@@ -28,6 +28,7 @@ namespace zenith
 		struct ExternalFunctionDefine
 		{
 			std::string name;
+			std::string moduleName;
 			size_t nArgs;
 		};
 

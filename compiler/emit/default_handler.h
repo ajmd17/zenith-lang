@@ -6,6 +6,7 @@
 #include <map>
 #include <utility>
 
+#include "bytecode.h"
 #include "../ast.h"
 #include "../state.h"
 
@@ -15,7 +16,8 @@ namespace zenith
 	{
 		struct Level
 		{
-			std::vector<FunctionDefinitionAst*> functionDeclarations;
+			// maps the 'mangled' function names to their definitions
+			std::map<std::string, FunctionDefinitionAst*> functionDeclarations;
 			std::vector<std::string> variableNames;
 
 			BlockType type;
@@ -38,7 +40,6 @@ namespace zenith
 			BytecodeCommandList commandList;
 
 			std::vector<std::shared_ptr<FunctionDefinitionAst>> nativeFunctions;
-
 			std::map<std::string, std::unique_ptr<ModuleAst>> externalModules;
 
 			int blockIdNum = 0;
@@ -55,7 +56,7 @@ namespace zenith
 			void increaseBlock(BlockType type);
 			void decreaseBlock();
 
-			BytecodeCommandList &getCommand() { return commandList; }
+			std::string makeIdentifier(AstNode *moduleAst, const std::string &original);
 
 			template <typename T, typename ... Args>
 			typename std::enable_if<std::is_base_of<BytecodeCommand, T>::value, void>::type
@@ -72,8 +73,9 @@ namespace zenith
 			void accept(ModuleAst *node);
 
 			ParserState &getState() { return state; }
+			BytecodeCommandList &getCommands() { return commandList; }
 
-			void defineFunction(const std::string &name, size_t numArgs);
+			void defineFunction(const std::string &name, const std::string &moduleName, size_t numArgs);
 
 		protected:
 			void accept(AstNode *node);

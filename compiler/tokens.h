@@ -34,15 +34,15 @@ namespace zenith
 		struct Token
 		{
 		public:
-			zenith::TokenType type;
+			zenith::compiler::TokenType type;
 			std::string value;
 			SourceLocation location;
 
 		private:
-			static std::map<zenith::TokenType, std::string> tokenStrings;
+			static std::map<zenith::compiler::TokenType, std::string> tokenStrings;
 
 		public:
-			static std::string asString(zenith::TokenType type);
+			static std::string asString(zenith::compiler::TokenType type);
 		};
 	}
 }

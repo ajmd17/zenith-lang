@@ -42,7 +42,7 @@ namespace zenith
 
 			for (ExternalFunctionDefine func : externalFunctions)
 			{
-				handler.defineFunction(func.name, func.nArgs);
+				handler.defineFunction(func.name, func.moduleName, func.nArgs);
 			}
 
 			handler.accept(unit);

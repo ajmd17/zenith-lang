@@ -29,9 +29,10 @@ namespace zenith
 			FUNCTION_NOT_FOUND,
 			TOO_MANY_ARGS,
 			TOO_FEW_ARGS,
-			VARIABLE_REDECLARED,
-			VARIABLE_UNDECLARED,
+			REDECLARED_IDENTIFIER,
+			UNDECLARED_IDENTIFIER,
 			EXPECTED_IDENTIFIER,
+			AMBIGUOUS_IDENTIFIER,
 			EXPECTED_TOKEN,
 			UNEXPECTED_END_OF_FILE,
 			EXPECTED_MODULE_DECLARATION,
@@ -76,11 +77,10 @@ namespace zenith
 
 		public:
 			template <typename ... Args>
-			Error(ErrorType type, SourceLocation location, const std::string &filename, Args && ... args)
+			Error(ErrorType type, SourceLocation location, Args && ... args)
 			{
 				this->type = type;
 				this->location = location;
-				this->filename = filename;
 
 				makeErrorMessage(errorMessages[type].c_str(), args...);
 			}

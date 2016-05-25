@@ -17,8 +17,12 @@ namespace zenith
 		class Parser
 		{
 		private:
+			std::string myModuleName;
+			AstNode *moduleAst;
 
-			SourceLocation getCurrentLocation();
+			std::string filepath;
+
+			SourceLocation location();
 
 			Token *peek(int n = 0);
 			Token *read();

@@ -24,9 +24,10 @@ namespace zenith
 			{ FUNCTION_NOT_FOUND, "Function '%' does not exist in this scope" },
 			{ TOO_MANY_ARGS, "Too many arguments used for function '%'" },
 			{ TOO_FEW_ARGS, "Too few arguments used for function '%'" },
-			{ VARIABLE_REDECLARED, "Identifier '%' has already been declared in this scope"},
-			{ VARIABLE_UNDECLARED, "Identifier '%' has not been declared"},
+			{ REDECLARED_IDENTIFIER, "Identifier '%' has already been declared in this scope"},
+			{ UNDECLARED_IDENTIFIER, "Identifier '%' has not been declared"},
 			{ EXPECTED_IDENTIFIER, "Expected an identifier" },
+			{ AMBIGUOUS_IDENTIFIER, "Identifier '%' is ambiguous"},
 			{ EXPECTED_TOKEN, "Expected '%'" },
 			{ UNEXPECTED_END_OF_FILE, "Unexpected end of file" },
 			{ EXPECTED_MODULE_DECLARATION, "Expected 'module' declaration" },
@@ -41,7 +42,7 @@ namespace zenith
 				(location.line + 1) <<
 				", column " <<
 				(location.column + 1) <<
-				(filename != "" ? (" in file '" + filename + "'") : "") <<
+				(location.file != "" ? (" in file '" + location.file + "'") : "") <<
 				": " << text << "\n";
 		}
 	}

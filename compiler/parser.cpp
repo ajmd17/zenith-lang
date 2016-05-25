@@ -16,23 +16,25 @@ namespace zenith
 		{
 			state.tokens = tokens;
 			state.errors = lexerState.errors;
-			state.filepath = lexerState.filepath;
+			this->filepath = lexerState.location.file;
 		}
 
 		std::unique_ptr<ModuleAst> Parser::parse()
 		{
 			std::unique_ptr<ModuleAst> unit = nullptr;
+			myModuleName = "__anon_module__";
 
 			if (!match_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_MODULE)))
-				state.errors.push_back({ ErrorType::EXPECTED_MODULE_DECLARATION, getCurrentLocation(), state.filepath });
+				state.errors.push_back({ ErrorType::EXPECTED_MODULE_DECLARATION, location() });
 			else
 			{
 				Token *ident = expect_read(TokenType::TK_IDENTIFIER);
 				if (ident)
 				{
-					std::string moduleName = ident->value;
+					myModuleName = ident->value;
 
-					unit = std::make_unique<ModuleAst>(getCurrentLocation(), moduleName);
+					unit = std::make_unique<ModuleAst>(location(), myModuleName);
+					moduleAst = unit.get();
 					while (state.position < state.tokens.size())
 					{
 						unit->addChild(parseStatement());
@@ -42,18 +44,19 @@ namespace zenith
 				}
 			}
 
-			unit = std::make_unique<ModuleAst>(getCurrentLocation(), "__anon__");
+			// parse error occured
+			unit = std::make_unique<ModuleAst>(location(), myModuleName);
 			return unit;
 		}
 
-		SourceLocation Parser::getCurrentLocation()
+		SourceLocation Parser::location()
 		{
-			if (peek() != nullptr)
-				return peek()->location;
-			else if (state.tokens.empty())
-				return SourceLocation(0, 0, "");
-			else
-				return peek(-1)->location;
+			if (!state.tokens.empty())
+			{
+				Token *token = peek();
+				return (token ? token->location : peek(-1)->location);
+			}
+			else return {0, 0, filepath};
 		}
 
 		Token *Parser::peek(int n)
@@ -74,23 +77,17 @@ namespace zenith
 
 		bool Parser::match(TokenType type, int n)
 		{
-			if (peek(n) && peek(n)->type == type)
-				return true;
-			return false;
+			return (peek(n) && peek(n)->type == type);
 		}
 
 		bool Parser::match(TokenType type1, TokenType type2)
 		{
-			if (match(type1) && match(type2, 1))
-				return true;
-			return false;
+			return (match(type1) && match(type2, 1));
 		}
 
 		bool Parser::match(TokenType type, const std::string &str)
 		{
-			if (match(type) && peek()->value == str)
-				return true;
-			return false;
+			return (match(type) && peek()->value == str);
 		}
 
 		bool Parser::match_read(TokenType type)
@@ -127,15 +124,17 @@ namespace zenith
 		Token *Parser::expect_read(TokenType type)
 		{
 			Token *token = nullptr;
+
 			if (!match_read(type, token))
 			{
 				Token *badToken = this->read();
-				if (badToken != nullptr)
+
+				if (badToken)
 				{
 					switch (type)
 					{
 					case TokenType::TK_IDENTIFIER:
-						state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, badToken->location, state.filepath });
+						state.errors.push_back({ ErrorType::EXPECTED_IDENTIFIER, badToken->location });
 						break;
 					case TokenType::TK_OPEN_PARENTHESIS:
 					case TokenType::TK_CLOSE_PARENTHESIS:
@@ -146,15 +145,15 @@ namespace zenith
 					case TokenType::TK_SEMICOLON:
 					case TokenType::TK_COLON:
 					case TokenType::TK_COMMA:
-						state.errors.push_back({ ErrorType::EXPECTED_TOKEN, badToken->location, state.filepath, Token::asString(type) });
+						state.errors.push_back({ ErrorType::EXPECTED_TOKEN, badToken->location, Token::asString(type) });
 						break;
 					default:
-						state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, badToken->location, state.filepath, badToken->value });
+						state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, badToken->location, badToken->value });
 						break;
 					}
 				}
 				else
-					state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, getCurrentLocation(), state.filepath });
+					state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, location() });
 			}
 
 			return token;
@@ -163,13 +162,14 @@ namespace zenith
 		Token *Parser::expect_read(TokenType type, const std::string &str)
 		{
 			Token *token = peek();
+
 			if (!match_read(type, str))
 			{
 				Token *badToken = this->read();
 				if (badToken != nullptr)
-					state.errors.push_back({ ErrorType::EXPECTED_TOKEN, badToken->location, state.filepath, str });
+					state.errors.push_back({ ErrorType::EXPECTED_TOKEN, badToken->location, str });
 				else
-					state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, getCurrentLocation(), state.filepath });
+					state.errors.push_back({ ErrorType::UNEXPECTED_END_OF_FILE, location() });
 			}
 			return token;
 		}
@@ -187,8 +187,8 @@ namespace zenith
 		std::unique_ptr<AstNode> Parser::parseImports()
 		{
 			auto token = expect_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_IMPORT));
-			bool isBlock = match_read(TokenType::TK_OPEN_BRACE);
 
+			bool isBlock = match_read(TokenType::TK_OPEN_BRACE);
 			if (!isBlock)
 				return parseImport();
 
@@ -202,18 +202,20 @@ namespace zenith
 					break;
 			}
 
-			auto importsAst = std::make_unique<ImportsAst>(getCurrentLocation(), std::move(imports));
+			auto importsAst = std::make_unique<ImportsAst>(location(), moduleAst, std::move(imports));
 			return std::move(importsAst);
 		}
 
 		std::unique_ptr<AstNode> Parser::parseImport()
 		{
 			const std::string localPath =
-				state.filepath.substr(0, state.filepath.find_last_of("/\\")) + "/";
+				filepath.substr(0, filepath.find_last_of("/\\")) + "/";
 
 			Token *tk = nullptr;
+
 			bool isModuleImport = true;
 			std::string value;
+
 			if (match_read(TokenType::TK_STRING, tk))
 			{
 				isModuleImport = false;
@@ -225,9 +227,9 @@ namespace zenith
 				value = tk->value;
 			}
 			else
-				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, read()->value });
+				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), read()->value });
 
-			auto result = std::make_unique<ImportAst>(getCurrentLocation(), value, localPath, isModuleImport);
+			auto result = std::make_unique<ImportAst>(location(), moduleAst, value, localPath, isModuleImport);
 			return std::move(result);
 		}
 
@@ -273,18 +275,18 @@ namespace zenith
 				else
 				{
 					read();
-					state.errors.push_back({ ErrorType::INTERNAL_ERROR, getCurrentLocation(), state.filepath });
+					state.errors.push_back({ ErrorType::INTERNAL_ERROR, location() });
 				}
 			}
 			else if (match(TokenType::TK_OPEN_BRACE))
 				return parseBlock();
 			else if (match_read(TokenType::TK_SEMICOLON))
-				return std::move(std::make_unique<StatementAst>(getCurrentLocation()));
+				return std::move(std::make_unique<StatementAst>(location(), moduleAst));
 			else
 			{
 				auto node = parseExpression(true);
 				if (node == nullptr)
-					state.errors.push_back({ ErrorType::ILLEGAL_EXPRESSION, getCurrentLocation(), state.filepath });
+					state.errors.push_back({ ErrorType::ILLEGAL_EXPRESSION, location() });
 
 				return std::move(node);
 			}
@@ -299,7 +301,7 @@ namespace zenith
 			{
 				if (peek(1)->value != getOperatorStr(Operator::OP_ASSIGN))
 				{
-					state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, peek(1)->value });
+					state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), peek(1)->value });
 					return nullptr;
 				}
 
@@ -311,7 +313,7 @@ namespace zenith
 				read();
 			}
 
-			auto varDeclAst = std::make_unique<VariableDeclarationAst>(getCurrentLocation(), identifier);
+			auto varDeclAst = std::make_unique<VariableDeclarationAst>(location(), moduleAst, identifier);
 			return std::move(varDeclAst);
 		}
 
@@ -340,7 +342,7 @@ namespace zenith
 						return nullptr;
 				}
 
-				left = std::make_unique<BinaryOperationAst>(getCurrentLocation(), std::move(left), std::move(right), op);
+				left = std::make_unique<BinaryOperationAst>(location(), moduleAst, std::move(left), std::move(right), op);
 			}
 
 			return nullptr;
@@ -356,8 +358,7 @@ namespace zenith
 			if (!value)
 				return nullptr;
 
-			value = std::make_unique<UnaryOperationAst>(getCurrentLocation(), std::move(value), op);
-
+			value = std::make_unique<UnaryOperationAst>(location(), moduleAst, std::move(value), op);
 			return std::move(value);
 		}
 
@@ -370,7 +371,6 @@ namespace zenith
 				return nullptr;
 
 			this->expect_read(TokenType::TK_CLOSE_PARENTHESIS);
-
 			return expr;
 		}
 
@@ -379,8 +379,7 @@ namespace zenith
 			auto token = expect_read(TokenType::TK_INTEGER);
 			long value = atoi(token->value.c_str());
 
-			auto node = std::make_unique<IntegerAst>(getCurrentLocation(), value);
-
+			auto node = std::make_unique<IntegerAst>(location(), moduleAst, value);
 			return std::move(node);
 		}
 
@@ -389,8 +388,7 @@ namespace zenith
 			auto token = expect_read(TokenType::TK_FLOAT);
 			double value = atof(token->value.c_str());
 
-			auto node = std::make_unique<FloatAst>(getCurrentLocation(), value);
-
+			auto node = std::make_unique<FloatAst>(location(), moduleAst, value);
 			return std::move(node);
 		}
 
@@ -420,7 +418,7 @@ namespace zenith
 
 						else if (peek()->type != TokenType::TK_COMMA)
 						{
-							state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, peek()->value });
+							state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), peek()->value });
 							return nullptr;
 						}
 						read();
@@ -428,7 +426,7 @@ namespace zenith
 				}
 				read();
 
-				result = std::make_unique<FunctionCallAst>(getCurrentLocation(), identifier, std::move(arguments));
+				result = std::make_unique<FunctionCallAst>(location(), moduleAst, identifier, std::move(arguments));
 			}
 			else if (match_read(TokenType::TK_DOT))
 			{
@@ -437,13 +435,13 @@ namespace zenith
 				if (match(TokenType::TK_IDENTIFIER))
 					nextIdentifier = std::move(parseIdentifier());
 				else
-					state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, read()->value });
+					state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), read()->value });
 
-				result = std::make_unique<MemberAccessAst>(getCurrentLocation(), identifier, std::move(nextIdentifier));
+				result = std::make_unique<MemberAccessAst>(location(), moduleAst, identifier, std::move(nextIdentifier));
 			}
 			else
 			{
-				result = std::make_unique<VariableAst>(getCurrentLocation(), identifier);
+				result = std::make_unique<VariableAst>(location(), moduleAst, identifier);
 			}
 
 			return std::move(result);
@@ -454,8 +452,7 @@ namespace zenith
 			std::unique_ptr<AstNode> result = nullptr;
 			std::string value = expect_read(TokenType::TK_STRING)->value;
 
-			result = std::make_unique<StringAst>(getCurrentLocation(), value);
-
+			result = std::make_unique<StringAst>(location(), moduleAst, value);
 			return std::move(result);
 		}
 
@@ -464,8 +461,7 @@ namespace zenith
 			std::unique_ptr<AstNode> result = nullptr;
 			std::string value = expect_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_TRUE))->value;
 
-			result = std::make_unique<TrueAst>(getCurrentLocation());
-
+			result = std::make_unique<TrueAst>(location(), moduleAst);
 			return std::move(result);
 		}
 
@@ -474,8 +470,7 @@ namespace zenith
 			std::unique_ptr<AstNode> result = nullptr;
 			std::string value = expect_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_FALSE))->value;
 
-			result = std::make_unique<FalseAst>(getCurrentLocation());
-
+			result = std::make_unique<FalseAst>(location(), moduleAst);
 			return std::move(result);
 		}
 
@@ -484,8 +479,7 @@ namespace zenith
 			std::unique_ptr<AstNode> result = nullptr;
 			std::string value = expect_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_NULL))->value;
 
-			result = std::make_unique<NullAst>(getCurrentLocation());
-
+			result = std::make_unique<NullAst>(location(), moduleAst);
 			return std::move(result);
 		}
 
@@ -527,7 +521,7 @@ namespace zenith
 				}
 			}
 			else
-				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, read()->value });
+				state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), read()->value });
 
 			return term;
 		}
@@ -547,7 +541,7 @@ namespace zenith
 				term = std::move(binOp);
 			}
 
-			auto expr = std::make_unique<ExpressionAst>(getCurrentLocation(), std::move(term), shouldClearStack);
+			auto expr = std::make_unique<ExpressionAst>(location(), moduleAst, std::move(term), shouldClearStack);
 			return std::move(expr);
 		}
 
@@ -555,7 +549,7 @@ namespace zenith
 		{
 			expect_read(TokenType::TK_OPEN_BRACE);
 
-			auto block = std::make_unique<BlockAst>(getCurrentLocation());
+			auto block = std::make_unique<BlockAst>(location(), moduleAst);
 
 			while (peek() && !match_read(TokenType::TK_CLOSE_BRACE))
 			{
@@ -591,7 +585,7 @@ namespace zenith
 
 					else if (peek()->type != TokenType::TK_COMMA)
 					{
-						state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, getCurrentLocation(), state.filepath, peek()->value });
+						state.errors.push_back({ ErrorType::UNEXPECTED_TOKEN, location(), peek()->value });
 						return nullptr;
 					}
 					read();
@@ -605,9 +599,9 @@ namespace zenith
 				block = std::move(parseStatement()); // read the block
 			}
 			else
-				state.errors.push_back({ ErrorType::EXPECTED_TOKEN, getCurrentLocation(), state.filepath, "{" });
+				state.errors.push_back({ ErrorType::EXPECTED_TOKEN, location(), "{" });
 
-			auto functionDefinitionAst = std::make_unique<FunctionDefinitionAst>(getCurrentLocation(), identifier, arguments, std::move(block));
+			auto functionDefinitionAst = std::make_unique<FunctionDefinitionAst>(location(), moduleAst, identifier, arguments, std::move(block));
 			return std::move(functionDefinitionAst);
 		}
 
@@ -626,7 +620,7 @@ namespace zenith
 				block = std::move(parseStatement()); // read the block
 			else
 			{
-				auto blockAst = std::make_unique<BlockAst>(getCurrentLocation());
+				auto blockAst = std::make_unique<BlockAst>(location(), moduleAst);
 				blockAst->children.push_back(std::move(parseStatement()));
 				block = std::move(blockAst);
 			}
@@ -638,17 +632,17 @@ namespace zenith
 					elseBlock = std::move(parseStatement()); // read the block
 				else
 				{
-					auto blockAst = std::make_unique<BlockAst>(getCurrentLocation());
+					auto blockAst = std::make_unique<BlockAst>(location(), moduleAst);
 					blockAst->children.push_back(std::move(parseStatement()));
 					elseBlock = std::move(blockAst);
 				}
 			}
 
-			auto ifStatementAst = std::make_unique<IfStatementAst>(getCurrentLocation(),
+			auto ifStatementAst = std::make_unique<IfStatementAst>(location(), 
+				moduleAst,
 				std::move(condition),
 				std::move(block),
 				std::move(elseBlock));
-
 			return std::move(ifStatementAst);
 		}
 
@@ -657,9 +651,7 @@ namespace zenith
 			expect_read(TokenType::TK_KEYWORD, getKeywordStr(Keyword::KW_RETURN));
 			auto expr = parseExpression();
 
-			auto returnStatementAst = std::make_unique<ReturnStatementAst>(getCurrentLocation(),
-				std::move(expr));
-
+			auto returnStatementAst = std::make_unique<ReturnStatementAst>(location(), moduleAst, std::move(expr));
 			return std::move(returnStatementAst);
 		}
 

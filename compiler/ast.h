@@ -106,17 +106,21 @@ namespace zenith
 				result += str;
 				return result;
 			}
+
 		public:
+			AstNode *module = nullptr;
+
 			SourceLocation location;
 			AstNodeType nodeType;
 
-			AstNode(SourceLocation location, AstNodeType nodeType)
+			AstNode(SourceLocation location, AstNode *module, AstNodeType nodeType)
 			{
 				this->location = location;
+				this->module = module;
 				this->nodeType = nodeType;
 			}
 
-			virtual std::string str() = NULL;
+			virtual std::string str() = 0;
 		};
 
 		struct ModuleAst : public AstNode
@@ -125,7 +129,7 @@ namespace zenith
 			std::vector<std::unique_ptr<AstNode>> children;
 
 			ModuleAst(SourceLocation location, const std::string &moduleName)
-				: AstNode(location, AST_MODULE)
+				: AstNode(location, this, AST_MODULE)
 			{
 				this->moduleName = moduleName;
 			}
@@ -158,8 +162,8 @@ namespace zenith
 		{
 			std::vector<std::unique_ptr<AstNode>> children;
 
-			StatementAst(SourceLocation location)
-				: AstNode(location, AST_STATEMENT)
+			StatementAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_STATEMENT)
 			{
 			}
 
@@ -192,8 +196,9 @@ namespace zenith
 			std::vector<std::unique_ptr<AstNode>> imports;
 
 			ImportsAst(SourceLocation location,
+				AstNode *module,
 				std::vector<std::unique_ptr<AstNode>> imports)
-				: AstNode(location, AST_IMPORTS)
+				: AstNode(location, module, AST_IMPORTS)
 			{
 				this->imports = std::move(imports);
 			}
@@ -223,11 +228,12 @@ namespace zenith
 			std::string localPath;
 			bool isModuleImport;
 
-			ImportAst(SourceLocation location,
+			ImportAst(SourceLocation location, 
+				AstNode *module,
 				const std::string &value,
 				const std::string &localPath,
 				bool isModuleImport)
-				: AstNode(location, AST_IMPORT)
+				: AstNode(location, module, AST_IMPORT)
 			{
 				this->value = value;
 				this->localPath = localPath;
@@ -254,8 +260,8 @@ namespace zenith
 		{
 			std::vector<std::unique_ptr<AstNode>> children;
 
-			BlockAst(SourceLocation location)
-				: AstNode(location, AST_BLOCK)
+			BlockAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_BLOCK)
 			{
 			}
 
@@ -288,10 +294,11 @@ namespace zenith
 			std::unique_ptr<AstNode> value;
 			bool shouldClearStack;
 
-			ExpressionAst(SourceLocation location,
+			ExpressionAst(SourceLocation location, 
+				AstNode *module,
 				std::unique_ptr<AstNode> value,
 				bool shouldClearStack)
-				: AstNode(location, AstNodeType::AST_EXPRESSION)
+				: AstNode(location, module, AstNodeType::AST_EXPRESSION)
 			{
 				this->value = std::move(value);
 				this->shouldClearStack = shouldClearStack;
@@ -321,11 +328,12 @@ namespace zenith
 			std::unique_ptr<AstNode> right;
 			Operator op;
 
-			BinaryOperationAst(SourceLocation location,
+			BinaryOperationAst(SourceLocation location, 
+				AstNode *module,
 				std::unique_ptr<AstNode> left,
 				std::unique_ptr<AstNode> right,
 				Operator op)
-				: AstNode(location, AST_BINARY_OPERATION)
+				: AstNode(location, module, AST_BINARY_OPERATION)
 			{
 				this->left = std::move(left);
 				this->right = std::move(right);
@@ -355,10 +363,11 @@ namespace zenith
 			std::unique_ptr<AstNode> value;
 			Operator op;
 
-			UnaryOperationAst(SourceLocation location,
+			UnaryOperationAst(SourceLocation location, 
+				AstNode *module,
 				std::unique_ptr<AstNode> value,
 				Operator op)
-				: AstNode(location, AST_UNARY_OPERATION)
+				: AstNode(location, module, AST_UNARY_OPERATION)
 			{
 				this->value = std::move(value);
 				this->op = op;
@@ -385,11 +394,13 @@ namespace zenith
 			std::string identifier;
 			std::unique_ptr<AstNode> next;
 
-			MemberAccessAst(SourceLocation location,
+			MemberAccessAst(SourceLocation location, 
+				AstNode *module,
 				const std::string &identifier,
 				std::unique_ptr<AstNode> next)
-				: AstNode(location, AST_MEMBER_ACCESS)
+				: AstNode(location, module, AST_MEMBER_ACCESS)
 			{
+				this->identifier = identifier;
 				this->next = std::move(next);
 			}
 
@@ -416,8 +427,10 @@ namespace zenith
 		{
 			std::string name;
 
-			VariableDeclarationAst(SourceLocation location, const std::string &name)
-				: AstNode(location, AST_VARIABLE_DECLARATION)
+			VariableDeclarationAst(SourceLocation location, 
+				AstNode *module, 
+				const std::string &name)
+				: AstNode(location, module, AST_VARIABLE_DECLARATION)
 			{
 				this->name = name;
 			}
@@ -440,8 +453,10 @@ namespace zenith
 		{
 			std::string name;
 
-			VariableAst(SourceLocation location, const std::string &name)
-				: AstNode(location, AST_VARIABLE)
+			VariableAst(SourceLocation location, 
+				AstNode *module, 
+				const std::string &name)
+				: AstNode(location, module, AST_VARIABLE)
 			{
 				this->name = name;
 			}
@@ -464,8 +479,10 @@ namespace zenith
 		{
 			long value;
 
-			IntegerAst(SourceLocation location, long value)
-				: AstNode(location, AST_INTEGER)
+			IntegerAst(SourceLocation location, 
+				AstNode *module, 
+				long value)
+				: AstNode(location, module, AST_INTEGER)
 			{
 				this->value = value;
 			}
@@ -488,8 +505,10 @@ namespace zenith
 		{
 			double value;
 
-			FloatAst(SourceLocation location, double value)
-				: AstNode(location, AST_FLOAT)
+			FloatAst(SourceLocation location,
+				AstNode *module, 
+				double value)
+				: AstNode(location, module, AST_FLOAT)
 			{
 				this->value = value;
 			}
@@ -512,8 +531,10 @@ namespace zenith
 		{
 			std::string value;
 
-			StringAst(SourceLocation location, const std::string &value)
-				: AstNode(location, AST_STRING)
+			StringAst(SourceLocation location, 
+				AstNode *module, 
+				const std::string &value)
+				: AstNode(location, module, AST_STRING)
 			{
 				this->value = value;
 			}
@@ -534,8 +555,8 @@ namespace zenith
 
 		struct TrueAst : public AstNode
 		{
-			TrueAst(SourceLocation location)
-				: AstNode(location, AST_TRUE)
+			TrueAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_TRUE)
 			{
 			}
 
@@ -550,8 +571,8 @@ namespace zenith
 
 		struct FalseAst : public AstNode
 		{
-			FalseAst(SourceLocation location)
-				: AstNode(location, AST_FALSE)
+			FalseAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_FALSE)
 			{
 			}
 
@@ -566,8 +587,8 @@ namespace zenith
 
 		struct NullAst : public AstNode
 		{
-			NullAst(SourceLocation location)
-				: AstNode(location, AST_NULL)
+			NullAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_NULL)
 			{
 			}
 
@@ -587,12 +608,13 @@ namespace zenith
 			std::unique_ptr<AstNode> block;
 			bool isNative;
 
-			FunctionDefinitionAst(SourceLocation location,
+			FunctionDefinitionAst(SourceLocation location, 
+				AstNode *module,
 				const std::string &name,
 				std::vector<std::string> arguments,
 				std::unique_ptr<AstNode> block,
 				bool isNative = false)
-				: AstNode(location, AST_FUNCTION_DEFINITION)
+				: AstNode(location, module, AST_FUNCTION_DEFINITION)
 			{
 				this->name = name;
 				this->arguments = arguments;
@@ -628,10 +650,11 @@ namespace zenith
 			std::string name;
 			std::vector<std::unique_ptr<AstNode>> arguments;
 
-			FunctionCallAst(SourceLocation location,
+			FunctionCallAst(SourceLocation location, 
+				AstNode *module,
 				const std::string &name,
 				std::vector<std::unique_ptr<AstNode>> arguments)
-				: AstNode(location, AST_FUNCTION_CALL)
+				: AstNode(location, module, AST_FUNCTION_CALL)
 			{
 				this->name = name;
 				this->arguments = std::move(arguments);
@@ -663,11 +686,12 @@ namespace zenith
 		{
 			std::unique_ptr<AstNode> cond_expr, block, elseStatement;
 
-			IfStatementAst(SourceLocation location,
+			IfStatementAst(SourceLocation location, 
+				AstNode *module,
 				std::unique_ptr<AstNode> cond_expr,
 				std::unique_ptr<AstNode> block,
 				std::unique_ptr<AstNode> elseStatement)
-				: AstNode(location, AST_IF_STATEMENT)
+				: AstNode(location, module, AST_IF_STATEMENT)
 			{
 				this->cond_expr = std::move(cond_expr);
 				this->block = std::move(block);
@@ -702,8 +726,10 @@ namespace zenith
 		{
 			std::unique_ptr<AstNode> value;
 
-			ReturnStatementAst(SourceLocation location, std::unique_ptr<AstNode> value)
-				: AstNode(location, AstNodeType::AST_RETURN_STATEMENT)
+			ReturnStatementAst(SourceLocation location, 
+				AstNode *module, 
+				std::unique_ptr<AstNode> value)
+				: AstNode(location, module, AstNodeType::AST_RETURN_STATEMENT)
 			{
 				this->value = std::move(value);
 			}
@@ -735,11 +761,12 @@ namespace zenith
 
 			std::vector<std::unique_ptr<AstNode>> statements;
 
-			ForLoopAst(SourceLocation location,
+			ForLoopAst(SourceLocation location, 
+				AstNode *module,
 				std::unique_ptr<AstNode> init_expr,
 				std::unique_ptr<AstNode> cond_expr,
 				std::unique_ptr<AstNode> inc_expr)
-				: AstNode(location, AST_FOR_LOOP)
+				: AstNode(location, module, AST_FOR_LOOP)
 			{
 				this->init_expr = std::move(init_expr);
 				this->cond_expr = std::move(cond_expr);

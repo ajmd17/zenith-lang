@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 			std::string emitFilename = unit->moduleName + ".emit";
 			zenith::compiler::Emitter emitter(unit.get(), parser.state);
 
-			emitter.defineFunction({ "print", 1 });
+			emitter.defineFunction({ "io_print", "io", 1 });
 
 			// Run emitted code
 			if (emitter.emit(emitFilename))
@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 				auto *reader = new zenith::runtime::FileByteReader(emitFilename);
 				auto *vm = new zenith::runtime::VM(reader);
 
-				vm->bindFunction("print", zen_print);
+				vm->bindFunction("io_print", zen_print);
 
 				vm->exec();
 
