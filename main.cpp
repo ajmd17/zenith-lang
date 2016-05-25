@@ -11,7 +11,6 @@ using std::cout;
 #include "compiler/parser.h"
 #include "compiler/lexer.h"
 #include "compiler/emit/emitter.h"
-using namespace zenith;
 
 int zen_print(const std::string &str)
 {
@@ -38,27 +37,25 @@ int main(int argc, char *argv[])
 		std::string str((std::istreambuf_iterator<char>(t)),
 			std::istreambuf_iterator<char>());
 
-		Lexer lexer(str, filename);
+		zenith::compiler::Lexer lexer(str, filename);
 		auto tokens = lexer.scan();
 
-		Parser parser(tokens, lexer.state);
+		zenith::compiler::Parser parser(tokens, lexer.state);
 		auto unit = parser.parse();
 
 		if (unit)
 		{
-			//std::cout << unit->str() << "\n\n\n";
-
 			// Emit code
 			std::string emitFilename = unit->moduleName + ".emit";
-			Emitter emitter(unit.get(), parser.state);
+			zenith::compiler::Emitter emitter(unit.get(), parser.state);
 
 			emitter.defineFunction({ "print", 1 });
 
 			// Run emitted code
 			if (emitter.emit(emitFilename))
 			{
-				auto *reader = new FileByteReader(emitFilename);
-				auto *vm = new VM(reader);
+				auto *reader = new zenith::runtime::FileByteReader(emitFilename);
+				auto *vm = new zenith::runtime::VM(reader);
 
 				vm->bindFunction("print", zen_print);
 

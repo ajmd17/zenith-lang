@@ -2,5 +2,8 @@
 
 namespace zenith
 {
-	int AstNode::indentLevel = 0;
+	namespace compiler
+	{
+		int AstNode::indentLevel = 0;
+	}
 }

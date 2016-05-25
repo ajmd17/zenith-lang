@@ -1,5 +1,5 @@
-#ifndef __EVALUATOR_H__
-#define __EVALUATOR_H__
+#ifndef __ZENITH_RUNTIME_EVALUATOR_H__
+#define __ZENITH_RUNTIME_EVALUATOR_H__
 
 #include <string>
 #include <memory>
@@ -9,33 +9,36 @@
 
 namespace zenith
 {
-	typedef std::stack<ValuePtr> ExpressionStack;
-	typedef Value &(Value::*BinaryOp)(Value *other);
-	typedef Value &(Value::*UnaryOp)();
-
-	class Evaluator
+	namespace runtime
 	{
-	private:
-		ExpressionStack exprStack;
+		typedef std::stack<ValuePtr> ExpressionStack;
+		typedef Value &(Value::*BinaryOp)(Value *other);
+		typedef Value &(Value::*UnaryOp)();
 
-	public:
-		ExpressionStack &getStack() { return exprStack; }
+		class Evaluator
+		{
+		private:
+			ExpressionStack exprStack;
 
-		void push(std::stack<ValuePtr> &objectStack);
-		void clear();
+		public:
+			ExpressionStack &getStack() { return exprStack; }
 
-		void loadInteger(long value);
-		void loadFloat(double value);
-		void loadString(const std::string &value);
-		void loadVariable(ValuePtr &value);
-		void loadNull();
+			void push(std::stack<ValuePtr> &objectStack);
+			void clear();
 
-		void assign();
-		void assign(BinaryOp op);
+			void loadInteger(long value);
+			void loadFloat(double value);
+			void loadString(const std::string &value);
+			void loadVariable(ValuePtr &value);
+			void loadNull();
 
-		void operation(BinaryOp op);
-		void operation(UnaryOp op);
-	};
+			void assign();
+			void assign(BinaryOp op);
+
+			void operation(BinaryOp op);
+			void operation(UnaryOp op);
+		};
+	}
 }
 
 #endif

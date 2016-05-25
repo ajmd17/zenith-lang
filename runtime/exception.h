@@ -1,5 +1,5 @@
-#ifndef __EXCEPTION_H__
-#define __EXCEPTION_H__
+#ifndef __ZENITH_RUNTIME_EXCEPTION_H__
+#define __ZENITH_RUNTIME_EXCEPTION_H__
 
 #include <cstdio>
 #include <iostream>
@@ -7,35 +7,38 @@
 
 namespace zenith
 {
-	struct Exception
+	namespace runtime
 	{
-		std::string message;
-
-		void display()
+		struct Exception
 		{
-			printf("%s: %s", typeid(*this).name(), message.c_str());
-			std::cin.get();
-			abort();
-		}
-	};
+			std::string message;
 
-	struct BinaryOperatorException 
-		: public Exception
-	{
-		BinaryOperatorException(const std::string &typeA, const std::string &typeB)
-			: Exception({"To conversion found between types '" + typeA + "' and '" + typeB + "'"})
-		{
-		}
-	};
+			void display()
+			{
+				printf("%s: %s", typeid(*this).name(), message.c_str());
+				std::cin.get();
+				abort();
+			}
+		};
 
-	struct UnaryOperatorException
-		: public Exception
-	{
-		UnaryOperatorException(const std::string &type)
-			: Exception({ "Invalid operation on type '" + type + "'" })
+		struct BinaryOperatorException
+			: public Exception
 		{
-		}
-	};
+			BinaryOperatorException(const std::string &typeA, const std::string &typeB)
+				: Exception({ "No conversion found between types '" + typeA + "' and '" + typeB + "'" })
+			{
+			}
+		};
+
+		struct UnaryOperatorException
+			: public Exception
+		{
+			UnaryOperatorException(const std::string &type)
+				: Exception({ "Invalid operation on type '" + type + "'" })
+			{
+			}
+		};
+	}
 }
 
 #endif

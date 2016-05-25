@@ -10,30 +10,33 @@
 
 namespace zenith
 {
-	struct ParserState
+	namespace compiler
 	{
-		std::vector<Error> errors;
-		std::vector<Token> tokens;
+		struct ParserState
+		{
+			std::vector<Error> errors;
+			std::vector<Token> tokens;
 
-		int position = 0;
+			int position = 0;
 
-		std::string filepath;
-	};
+			std::string filepath;
+		};
 
-	struct LexerState
-	{
-		int position;
-		int sourceLen;
+		struct LexerState
+		{
+			int position;
+			int sourceLen;
 
-		std::string source;
-		std::string file;
+			std::string source;
+			std::string file;
 
-		SourceLocation location;
+			SourceLocation location;
 
-		std::vector<Error> errors;
+			std::vector<Error> errors;
 
-		std::string filepath;
-	};
+			std::string filepath;
+		};
+	}
 }
 
 #endif

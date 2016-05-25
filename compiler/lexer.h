@@ -1,5 +1,5 @@
-#ifndef __LEXER_H__
-#define __LEXER_H__
+#ifndef __ZENITH_COMPILER_LEXER_H__
+#define __ZENITH_COMPILER_LEXER_H__
 
 #include <string>
 #include <vector>
@@ -10,31 +10,34 @@
 
 namespace zenith
 {
-	class Lexer
+	namespace compiler
 	{
-	public:
-		LexerState state;
+		class Lexer
+		{
+		public:
+			LexerState state;
 
-		Lexer(const std::string &source, const std::string &filepath = "");
-		std::vector<Token> scan();
+			Lexer(const std::string &source, const std::string &filepath = "");
+			std::vector<Token> scan();
 
-	private:
-		Token nextToken();
-		Token readNumber();
-		Token readFloat(std::string &str);
-		Token readString();
-		Token readMultilineString();
-		Token readIdentifier();
-		Token readOperator();
+		private:
+			Token nextToken();
+			Token readNumber();
+			Token readFloat(std::string &str);
+			Token readString();
+			Token readMultilineString();
+			Token readIdentifier();
+			Token readOperator();
 
-		void readLineComment();
-		void readBlockComment();
+			void readLineComment();
+			void readBlockComment();
 
-		char readChar();
-		char peekChar(int n = 0);
-		char parseEscapeCode();
-		bool skipWhitespace();
-	};
+			char readChar();
+			char peekChar(int n = 0);
+			char parseEscapeCode();
+			bool skipWhitespace();
+		};
+	}
 }
 
 #endif

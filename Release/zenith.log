@@ -1,10 +1,625 @@
-﻿  parser.cpp
-compiler\parser.cpp(34): warning C4018: '<': signed/unsigned mismatch
-compiler\parser.cpp(59): warning C4018: '<': signed/unsigned mismatch
-compiler\parser.cpp(67): warning C4018: '>=': signed/unsigned mismatch
-  Generating code
-  1 of 5765 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    58 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  zenith.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\zenith\Release\zenith.exe
+﻿  ast.cpp
+  default_handler.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(17): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(17): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(18): error C2065: 'Token': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(18): error C2923: 'std::vector': 'Token' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(33): error C3646: 'location': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(33): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(35): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(35): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(21): error C3646: 'type': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(21): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(38): error C3646: 'commandList': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(38): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(53): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(53): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(55): error C2061: syntax error: identifier 'BlockType'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(58): error C2143: syntax error: missing ';' before '&'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(58): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(58): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(61): error C2065: 'BytecodeCommand': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(61): error C2923: 'std::is_base_of': 'BytecodeCommand' is not a valid template type argument for parameter '_Base'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(69): error C2061: syntax error: identifier 'ParserState'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C2143: syntax error: missing ';' before '&'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../lexer.h(18): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../lexer.h(18): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../parser.h(60): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../parser.h(60): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../parser.h(62): error C2061: syntax error: identifier 'LexerState'
+compiler\emit\default_handler.cpp(15): error C2065: 'ParserState': undeclared identifier
+compiler\emit\default_handler.cpp(15): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(15): error C2761: '{ctor}': member function redeclaration not allowed
+compiler\emit\default_handler.cpp(16): error C2448: 'zenith::compiler::DefaultAstHandler::{ctor}': function-style initializer appears to be a function definition
+compiler\emit\default_handler.cpp(30): warning C4018: '<': signed/unsigned mismatch
+compiler\emit\default_handler.cpp(107): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(107): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(107): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(107): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(107): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(107): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(121): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(121): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(121): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(121): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(121): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(121): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(137): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(137): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(137): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(137): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(137): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(137): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(148): error C2039: 'state': is not a member of 'zenith::compiler::Lexer'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../lexer.h(16): note: see declaration of 'zenith::compiler::Lexer'
+compiler\emit\default_handler.cpp(153): error C2039: 'state': is not a member of 'zenith::compiler::Parser'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../parser.h(18): note: see declaration of 'zenith::compiler::Parser'
+compiler\emit\default_handler.cpp(153): error C2228: left of '.errors' must have class/struct/union
+compiler\emit\default_handler.cpp(154): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(154): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(154): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(154): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(154): error C2065: 'error': undeclared identifier
+compiler\emit\default_handler.cpp(169): warning C4018: '<': signed/unsigned mismatch
+compiler\emit\default_handler.cpp(278): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(278): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(278): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(278): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(278): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(278): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(302): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(302): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(302): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(302): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(302): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(302): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(327): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(327): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(327): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(327): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(327): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(327): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(332): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(332): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(332): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(332): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(332): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(332): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(341): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(341): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(341): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(341): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(341): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(341): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(353): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(353): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(353): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(353): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(353): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(353): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(408): error C2660: 'zenith::compiler::DefaultAstHandler::increaseBlock': function does not take 1 arguments
+compiler\emit\default_handler.cpp(431): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(431): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(431): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(431): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(431): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(431): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(433): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(433): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(433): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(433): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(433): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(433): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(435): error C2065: 'state': undeclared identifier
+compiler\emit\default_handler.cpp(435): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\default_handler.cpp(435): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(435): error C2228: left of '.push_back' must have class/struct/union
+compiler\emit\default_handler.cpp(435): error C2228: left of '.filepath' must have class/struct/union
+  compiler\emit\default_handler.cpp(435): note: type is 'unknown-type'
+compiler\emit\default_handler.cpp(441): error C2660: 'zenith::compiler::DefaultAstHandler::increaseBlock': function does not take 1 arguments
+compiler\emit\default_handler.cpp(466): error C2660: 'zenith::compiler::DefaultAstHandler::increaseBlock': function does not take 1 arguments
+compiler\emit\default_handler.cpp(473): error C2660: 'zenith::compiler::DefaultAstHandler::increaseBlock': function does not take 1 arguments
+compiler\emit\default_handler.cpp(488): error C2039: 'type': is not a member of 'zenith::compiler::Level'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(17): note: see declaration of 'zenith::compiler::Level'
+compiler\emit\default_handler.cpp(534): warning C4018: '<': signed/unsigned mismatch
+compiler\emit\default_handler.cpp(543): warning C4018: '<': signed/unsigned mismatch
+compiler\emit\default_handler.cpp(545): warning C4018: '>': signed/unsigned mismatch
+compiler\emit\default_handler.cpp(557): error C2511: 'void zenith::compiler::DefaultAstHandler::increaseBlock(zenith::BlockType)': overloaded member function not found in 'zenith::compiler::DefaultAstHandler'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(35): note: see declaration of 'zenith::compiler::DefaultAstHandler'
+compiler\emit\default_handler.cpp(559): error C2039: 'type': is not a member of 'zenith::compiler::Level'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(17): note: see declaration of 'zenith::compiler::Level'
+compiler\emit\default_handler.cpp(560): error C2597: illegal reference to non-static member 'zenith::compiler::DefaultAstHandler::level'
+compiler\emit\default_handler.cpp(560): error C3867: 'zenith::compiler::DefaultAstHandler::level': non-standard syntax; use '&' to create a pointer to member
+compiler\emit\default_handler.cpp(560): error C2105: '++' needs l-value
+compiler\emit\default_handler.cpp(560): error C2597: illegal reference to non-static member 'zenith::compiler::DefaultAstHandler::levels'
+compiler\emit\default_handler.cpp(560): error C3867: 'zenith::compiler::DefaultAstHandler::levels': non-standard syntax; use '&' to create a pointer to member
+compiler\emit\default_handler.cpp(560): error C2109: subscript requires array or pointer type
+compiler\emit\default_handler.cpp(562): error C2352: 'zenith::compiler::DefaultAstHandler::addCommand': illegal call of non-static member function
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(62): note: see declaration of 'zenith::compiler::DefaultAstHandler::addCommand'
+  emitter.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(17): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(17): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(18): error C2065: 'Token': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(18): error C2923: 'std::vector': 'Token' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(33): error C3646: 'location': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(33): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(35): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\../state.h(35): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\emitter.h(50): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\emitter.h(50): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\emitter.h(55): error C2061: syntax error: identifier 'ParserState'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(53): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(53): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(69): error C2061: syntax error: identifier 'ParserState'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C2143: syntax error: missing ';' before '&'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(74): error C2334: unexpected token(s) preceding '{'; skipping apparent function body
+compiler\emit\emitter.cpp(14): error C2061: syntax error: identifier 'ParserState'
+compiler\emit\emitter.cpp(17): error C2039: 'state': is not a member of 'zenith::compiler::Emitter'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\emitter.h(35): note: see declaration of 'zenith::compiler::Emitter'
+compiler\emit\emitter.cpp(17): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(41): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(49): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(49): error C2039: 'getState': is not a member of 'zenith::compiler::DefaultAstHandler'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(35): note: see declaration of 'zenith::compiler::DefaultAstHandler'
+compiler\emit\emitter.cpp(51): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(51): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\emitter.cpp(51): note: type is 'unknown-type'
+compiler\emit\emitter.cpp(51): error C2228: left of '.size' must have class/struct/union
+compiler\emit\emitter.cpp(53): error C2039: 'getCommands': is not a member of 'zenith::compiler::DefaultAstHandler'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\emit\default_handler.h(35): note: see declaration of 'zenith::compiler::DefaultAstHandler'
+compiler\emit\emitter.cpp(339): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(339): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\emitter.cpp(339): note: type is 'unknown-type'
+compiler\emit\emitter.cpp(339): error C2228: left of '.begin' must have class/struct/union
+compiler\emit\emitter.cpp(339): error C2228: left of '.end' must have class/struct/union
+compiler\emit\emitter.cpp(339): error C2672: 'std::sort': no matching overloaded function found
+compiler\emit\emitter.cpp(339): error C2780: 'void std::sort(_RanIt,_RanIt)': expects 2 arguments - 1 provided
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\algorithm(3209): note: see declaration of 'std::sort'
+compiler\emit\emitter.cpp(339): error C2780: 'void std::sort(_RanIt,_RanIt,_Pr)': expects 3 arguments - 1 provided
+  C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\include\algorithm(3200): note: see declaration of 'std::sort'
+compiler\emit\emitter.cpp(340): error C2065: 'state': undeclared identifier
+compiler\emit\emitter.cpp(340): error C2228: left of '.errors' must have class/struct/union
+  compiler\emit\emitter.cpp(340): note: type is 'unknown-type'
+compiler\emit\emitter.cpp(341): error C2065: 'error': undeclared identifier
+compiler\emit\emitter.cpp(341): error C2228: left of '.display' must have class/struct/union
+  compiler\emit\emitter.cpp(341): note: type is 'unknown-type'
+  errors.cpp
+  lexer.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2065: 'Token': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2923: 'std::vector': 'Token' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C3646: 'location': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\lexer.h(18): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\lexer.h(18): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+compiler\lexer.cpp(12): error C2039: 'state': is not a member of 'zenith::compiler::Lexer'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\lexer.h(16): note: see declaration of 'zenith::compiler::Lexer'
+compiler\lexer.cpp(12): error C2228: left of '.source' must have class/struct/union
+compiler\lexer.cpp(13): error C2039: 'state': is not a member of 'zenith::compiler::Lexer'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\lexer.h(16): note: see declaration of 'zenith::compiler::Lexer'
+compiler\lexer.cpp(13): error C2228: left of '.filepath' must have class/struct/union
+compiler\lexer.cpp(14): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(14): error C2228: left of '.position' must have class/struct/union
+  compiler\lexer.cpp(14): note: type is 'unknown-type'
+compiler\lexer.cpp(15): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(15): error C2228: left of '.sourceLen' must have class/struct/union
+  compiler\lexer.cpp(15): note: type is 'unknown-type'
+compiler\lexer.cpp(16): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(16): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(16): note: type is 'unknown-type'
+compiler\lexer.cpp(63): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(63): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(63): note: type is 'unknown-type'
+compiler\lexer.cpp(68): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(68): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(68): note: type is 'unknown-type'
+compiler\lexer.cpp(73): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(73): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(73): note: type is 'unknown-type'
+compiler\lexer.cpp(78): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(78): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(78): note: type is 'unknown-type'
+compiler\lexer.cpp(83): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(83): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(83): note: type is 'unknown-type'
+compiler\lexer.cpp(88): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(88): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(88): note: type is 'unknown-type'
+compiler\lexer.cpp(93): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(93): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(93): note: type is 'unknown-type'
+compiler\lexer.cpp(98): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(98): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(98): note: type is 'unknown-type'
+compiler\lexer.cpp(103): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(103): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(103): note: type is 'unknown-type'
+compiler\lexer.cpp(107): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(107): error C2228: left of '.errors' must have class/struct/union
+  compiler\lexer.cpp(107): note: type is 'unknown-type'
+compiler\lexer.cpp(107): error C2228: left of '.push_back' must have class/struct/union
+compiler\lexer.cpp(107): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(107): note: type is 'unknown-type'
+compiler\lexer.cpp(107): error C2228: left of '.filepath' must have class/struct/union
+  compiler\lexer.cpp(107): note: type is 'unknown-type'
+compiler\lexer.cpp(127): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(127): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(127): note: type is 'unknown-type'
+compiler\lexer.cpp(143): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(143): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(143): note: type is 'unknown-type'
+compiler\lexer.cpp(178): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(178): error C2228: left of '.errors' must have class/struct/union
+  compiler\lexer.cpp(178): note: type is 'unknown-type'
+compiler\lexer.cpp(178): error C2228: left of '.push_back' must have class/struct/union
+compiler\lexer.cpp(178): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(178): note: type is 'unknown-type'
+compiler\lexer.cpp(178): error C2228: left of '.filepath' must have class/struct/union
+  compiler\lexer.cpp(178): note: type is 'unknown-type'
+compiler\lexer.cpp(180): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(180): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(180): note: type is 'unknown-type'
+compiler\lexer.cpp(212): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(212): error C2228: left of '.errors' must have class/struct/union
+  compiler\lexer.cpp(212): note: type is 'unknown-type'
+compiler\lexer.cpp(212): error C2228: left of '.push_back' must have class/struct/union
+compiler\lexer.cpp(212): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(212): note: type is 'unknown-type'
+compiler\lexer.cpp(212): error C2228: left of '.filepath' must have class/struct/union
+  compiler\lexer.cpp(212): note: type is 'unknown-type'
+compiler\lexer.cpp(215): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(215): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(215): note: type is 'unknown-type'
+compiler\lexer.cpp(231): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(231): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(231): note: type is 'unknown-type'
+compiler\lexer.cpp(233): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(233): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(233): note: type is 'unknown-type'
+compiler\lexer.cpp(248): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(248): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(248): note: type is 'unknown-type'
+compiler\lexer.cpp(254): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(254): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(254): note: type is 'unknown-type'
+compiler\lexer.cpp(260): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(260): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(260): note: type is 'unknown-type'
+compiler\lexer.cpp(268): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(268): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(268): note: type is 'unknown-type'
+compiler\lexer.cpp(270): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(270): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(270): note: type is 'unknown-type'
+compiler\lexer.cpp(299): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(299): error C2228: left of '.errors' must have class/struct/union
+  compiler\lexer.cpp(299): note: type is 'unknown-type'
+compiler\lexer.cpp(299): error C2228: left of '.push_back' must have class/struct/union
+compiler\lexer.cpp(299): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(299): note: type is 'unknown-type'
+compiler\lexer.cpp(299): error C2228: left of '.filepath' must have class/struct/union
+  compiler\lexer.cpp(299): note: type is 'unknown-type'
+compiler\lexer.cpp(304): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(304): error C2228: left of '.position' must have class/struct/union
+  compiler\lexer.cpp(304): note: type is 'unknown-type'
+compiler\lexer.cpp(304): error C2228: left of '.sourceLen' must have class/struct/union
+  compiler\lexer.cpp(304): note: type is 'unknown-type'
+compiler\lexer.cpp(307): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(307): error C2228: left of '.source' must have class/struct/union
+  compiler\lexer.cpp(307): note: type is 'unknown-type'
+compiler\lexer.cpp(307): error C2228: left of '.position' must have class/struct/union
+  compiler\lexer.cpp(307): note: type is 'unknown-type'
+compiler\lexer.cpp(309): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(309): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(309): note: type is 'unknown-type'
+compiler\lexer.cpp(309): error C2228: left of '.line' must have class/struct/union
+compiler\lexer.cpp(310): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(310): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(310): note: type is 'unknown-type'
+compiler\lexer.cpp(310): error C2228: left of '.column' must have class/struct/union
+compiler\lexer.cpp(313): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(313): error C2228: left of '.location' must have class/struct/union
+  compiler\lexer.cpp(313): note: type is 'unknown-type'
+compiler\lexer.cpp(313): error C2228: left of '.column' must have class/struct/union
+compiler\lexer.cpp(315): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(315): error C2228: left of '.source' must have class/struct/union
+  compiler\lexer.cpp(315): note: type is 'unknown-type'
+compiler\lexer.cpp(315): error C2228: left of '.position' must have class/struct/union
+  compiler\lexer.cpp(315): note: type is 'unknown-type'
+compiler\lexer.cpp(320): error C2065: 'state': undeclared identifier
+compiler\lexer.cpp(320): error C2228: left of '.position' must have class/struct/union
+compiler\lexer.cpp(320): fatal error C1003: error count exceeds 100; stopping compilation
+  parser.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2065: 'Token': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2923: 'std::vector': 'Token' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C3646: 'location': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\parser.h(60): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\parser.h(60): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\parser.h(62): error C2061: syntax error: identifier 'LexerState'
+compiler\parser.cpp(15): error C2061: syntax error: identifier 'LexerState'
+compiler\parser.cpp(17): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(17): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(17): note: type is 'unknown-type'
+compiler\parser.cpp(18): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(18): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(18): note: type is 'unknown-type'
+compiler\parser.cpp(18): error C2065: 'lexerState': undeclared identifier
+compiler\parser.cpp(19): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(19): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(19): note: type is 'unknown-type'
+compiler\parser.cpp(19): error C2065: 'lexerState': undeclared identifier
+compiler\parser.cpp(27): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(27): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(27): note: type is 'unknown-type'
+compiler\parser.cpp(27): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(27): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(27): note: type is 'unknown-type'
+compiler\parser.cpp(36): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(36): error C2228: left of '.position' must have class/struct/union
+  compiler\parser.cpp(36): note: type is 'unknown-type'
+compiler\parser.cpp(36): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(36): note: type is 'unknown-type'
+compiler\parser.cpp(36): error C2228: left of '.size' must have class/struct/union
+compiler\parser.cpp(53): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(53): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(53): note: type is 'unknown-type'
+compiler\parser.cpp(53): error C2228: left of '.empty' must have class/struct/union
+compiler\parser.cpp(61): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(61): error C2228: left of '.position' must have class/struct/union
+  compiler\parser.cpp(61): note: type is 'unknown-type'
+compiler\parser.cpp(61): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(61): note: type is 'unknown-type'
+compiler\parser.cpp(61): error C2228: left of '.size' must have class/struct/union
+compiler\parser.cpp(62): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(62): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(62): note: type is 'unknown-type'
+compiler\parser.cpp(62): error C2228: left of '.position' must have class/struct/union
+  compiler\parser.cpp(62): note: type is 'unknown-type'
+compiler\parser.cpp(69): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(69): error C2228: left of '.position' must have class/struct/union
+  compiler\parser.cpp(69): note: type is 'unknown-type'
+compiler\parser.cpp(69): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(69): note: type is 'unknown-type'
+compiler\parser.cpp(69): error C2228: left of '.size' must have class/struct/union
+compiler\parser.cpp(72): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(72): error C2228: left of '.tokens' must have class/struct/union
+  compiler\parser.cpp(72): note: type is 'unknown-type'
+compiler\parser.cpp(72): error C2228: left of '.position' must have class/struct/union
+  compiler\parser.cpp(72): note: type is 'unknown-type'
+compiler\parser.cpp(138): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(138): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(138): note: type is 'unknown-type'
+compiler\parser.cpp(138): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(138): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(138): note: type is 'unknown-type'
+compiler\parser.cpp(138): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'zenith::compiler::Error'
+  compiler\parser.cpp(138): note: No constructor could take the source type, or constructor overload resolution was ambiguous
+compiler\parser.cpp(149): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(149): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(149): note: type is 'unknown-type'
+compiler\parser.cpp(149): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(149): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(149): note: type is 'unknown-type'
+compiler\parser.cpp(152): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(152): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(152): note: type is 'unknown-type'
+compiler\parser.cpp(152): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(152): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(152): note: type is 'unknown-type'
+compiler\parser.cpp(157): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(157): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(157): note: type is 'unknown-type'
+compiler\parser.cpp(157): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(157): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(157): note: type is 'unknown-type'
+compiler\parser.cpp(157): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'zenith::compiler::Error'
+  compiler\parser.cpp(157): note: No constructor could take the source type, or constructor overload resolution was ambiguous
+compiler\parser.cpp(170): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(170): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(170): note: type is 'unknown-type'
+compiler\parser.cpp(170): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(170): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(170): note: type is 'unknown-type'
+compiler\parser.cpp(172): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(172): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(172): note: type is 'unknown-type'
+compiler\parser.cpp(172): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(172): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(172): note: type is 'unknown-type'
+compiler\parser.cpp(172): error C2440: '<function-style-cast>': cannot convert from 'initializer list' to 'zenith::compiler::Error'
+  compiler\parser.cpp(172): note: No constructor could take the source type, or constructor overload resolution was ambiguous
+compiler\parser.cpp(212): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(212): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(212): note: type is 'unknown-type'
+compiler\parser.cpp(212): error C2228: left of '.substr' must have class/struct/union
+compiler\parser.cpp(212): error C2228: left of '.find_last_of' must have class/struct/union
+compiler\parser.cpp(228): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(228): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(228): note: type is 'unknown-type'
+compiler\parser.cpp(228): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(228): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(228): note: type is 'unknown-type'
+compiler\parser.cpp(276): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(276): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(276): note: type is 'unknown-type'
+compiler\parser.cpp(276): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(276): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(276): note: type is 'unknown-type'
+compiler\parser.cpp(287): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(287): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(287): note: type is 'unknown-type'
+compiler\parser.cpp(287): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(287): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(287): note: type is 'unknown-type'
+compiler\parser.cpp(302): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(302): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(302): note: type is 'unknown-type'
+compiler\parser.cpp(302): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(302): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(302): note: type is 'unknown-type'
+compiler\parser.cpp(423): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(423): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(423): note: type is 'unknown-type'
+compiler\parser.cpp(423): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(423): error C2228: left of '.filepath' must have class/struct/union
+  compiler\parser.cpp(423): note: type is 'unknown-type'
+compiler\parser.cpp(440): error C2065: 'state': undeclared identifier
+compiler\parser.cpp(440): error C2228: left of '.errors' must have class/struct/union
+  compiler\parser.cpp(440): note: type is 'unknown-type'
+compiler\parser.cpp(440): error C2228: left of '.push_back' must have class/struct/union
+compiler\parser.cpp(440): error C2228: left of '.filepath' must have class/struct/union
+compiler\parser.cpp(440): fatal error C1003: error count exceeds 100; stopping compilation
+  tokens.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+  main.cpp
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(37): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(42): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(45): error C2039: 'TokenType': is not a member of 'zenith'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\tokens.h(9): note: see declaration of 'zenith'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(17): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2065: 'Token': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(18): error C2923: 'std::vector': 'Token' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C3646: 'location': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(33): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2065: 'Error': undeclared identifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler\state.h(35): error C2923: 'std::vector': 'Error' is not a valid template type argument for parameter '_Ty'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/parser.h(60): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/parser.h(60): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/parser.h(62): error C2061: syntax error: identifier 'LexerState'
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/lexer.h(18): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/lexer.h(18): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/emit/emitter.h(50): error C3646: 'state': unknown override specifier
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/emit/emitter.h(50): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/emit/emitter.h(55): error C2061: syntax error: identifier 'ParserState'
+main.cpp(45): error C2039: 'state': is not a member of 'zenith::compiler::Lexer'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/lexer.h(16): note: see declaration of 'zenith::compiler::Lexer'
+main.cpp(52): error C2039: 'state': is not a member of 'zenith::compiler::Parser'
+  c:\users\user\documents\visual studio 2015\projects\zenith\zenith\compiler/parser.h(18): note: see declaration of 'zenith::compiler::Parser'
+  evaluator.cpp
+  frame.cpp
+  module.cpp
+  value.cpp
+  vm.cpp
+runtime\vm.cpp(39): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(47): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(53): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(61): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(70): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(102): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(117): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(146): warning C4244: '=': conversion from 'uint64_t' to 'unsigned long', possible loss of data
+runtime\vm.cpp(148): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(163): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(184): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(206): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(219): warning C4244: 'argument': conversion from 'std::streamoff' to 'unsigned long', possible loss of data
+runtime\vm.cpp(221): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(231): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(266): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(298): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(315): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(316): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(318): warning C4244: 'argument': conversion from 'std::streamoff' to 'unsigned long', possible loss of data
+runtime\vm.cpp(322): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(333): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(337): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(340): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(343): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(349): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(379): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(400): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(407): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(422): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(432): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(436): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(439): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(448): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(451): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(460): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(463): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(480): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(529): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(545): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(562): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(579): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(595): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(620): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(630): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(654): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(668): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(694): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(706): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(716): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(725): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(733): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(743): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(753): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(763): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(773): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(783): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(793): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(803): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(813): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(823): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(833): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(843): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(853): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(863): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(873): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(883): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(893): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(903): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(913): error C3861: 'debug_log': identifier not found
+runtime\vm.cpp(929): error C2065: 'Timer': undeclared identifier
+runtime\vm.cpp(929): error C2146: syntax error: missing ';' before identifier 'timer'
+runtime\vm.cpp(929): error C2065: 'timer': undeclared identifier
+runtime\vm.cpp(930): error C2065: 'timer': undeclared identifier
+runtime\vm.cpp(930): error C2228: left of '.start' must have class/struct/union
+  runtime\vm.cpp(930): note: type is 'unknown-type'
+runtime\vm.cpp(942): error C2065: 'timer': undeclared identifier
+runtime\vm.cpp(942): error C2228: left of '.elapsedTime' must have class/struct/union
+  runtime\vm.cpp(942): note: type is 'unknown-type'
+runtime\vm.cpp(947): warning C4018: '>=': signed/unsigned mismatch

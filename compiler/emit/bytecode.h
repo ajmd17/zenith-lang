@@ -1,5 +1,5 @@
-#ifndef __BYTECODE_H__
-#define __BYTECODE_H__
+#ifndef __ZENITH_COMPILER_BYTECODE_H__
+#define __ZENITH_COMPILER_BYTECODE_H__
 
 #include <cstdint>
 #include <vector>
@@ -12,426 +12,429 @@
 
 namespace zenith
 {
-	struct BytecodeCommand
+	namespace compiler
 	{
-		Instruction command = Instruction::CMD_NONE;
-
-		BytecodeCommand(Instruction cmd = Instruction::CMD_NONE)
+		struct BytecodeCommand
 		{
-			this->command = cmd;
-		}
-	};
+			Instruction command = Instruction::CMD_NONE;
 
-	typedef std::vector<std::shared_ptr<BytecodeCommand>> BytecodeCommandList;
+			BytecodeCommand(Instruction cmd = Instruction::CMD_NONE)
+			{
+				this->command = cmd;
+			}
+		};
 
-	struct IncreaseBlockLevel : public BytecodeCommand
-	{
-		IncreaseBlockLevel() : BytecodeCommand(Instruction::CMD_INC_BLOCK_LEVEL) { }
-	};
+		typedef std::vector<std::shared_ptr<BytecodeCommand>> BytecodeCommandList;
 
-	struct DecreaseBlockLevel : public BytecodeCommand
-	{
-		DecreaseBlockLevel() : BytecodeCommand(Instruction::CMD_DEC_BLOCK_LEVEL) { }
-	};
-
-	struct IncreaseReadLevel : public BytecodeCommand
-	{
-		IncreaseReadLevel() : BytecodeCommand(Instruction::CMD_INC_READ_LEVEL) { }
-	};
-
-	struct DecreaseReadLevel : public BytecodeCommand
-	{
-		DecreaseReadLevel() : BytecodeCommand(Instruction::CMD_DEC_READ_LEVEL) { }
-	};
-
-	struct LeaveBlock : public BytecodeCommand
-	{
-		LeaveBlock() : BytecodeCommand(Instruction::CMD_LEAVE_BLOCK) { }
-	};
-
-	struct StackPopObject : public BytecodeCommand
-	{
-		std::string varName;
-		int whichStack;
-
-		StackPopObject(const std::string &varName, int whichStack) : BytecodeCommand(Instruction::CMD_STACK_POP_OBJECT)
+		struct IncreaseBlockLevel : public BytecodeCommand
 		{
-			this->varName = varName;
-			this->whichStack = whichStack;
-		}
-	};
+			IncreaseBlockLevel() : BytecodeCommand(Instruction::CMD_INC_BLOCK_LEVEL) { }
+		};
 
-	struct CreateBlock : public BytecodeCommand
-	{
-		BlockType blockType;
-		unsigned int blockId;
-		unsigned int parentId;
-
-		CreateBlock(BlockType blockType, unsigned int blockId, unsigned int parentId) : BytecodeCommand(Instruction::CMD_CREATE_BLOCK)
+		struct DecreaseBlockLevel : public BytecodeCommand
 		{
-			this->blockType = blockType;
-			this->blockId = blockId;
-			this->parentId = parentId;
-		}
-	};
+			DecreaseBlockLevel() : BytecodeCommand(Instruction::CMD_DEC_BLOCK_LEVEL) { }
+		};
 
-	struct GoToBlock : public BytecodeCommand
-	{
-		unsigned int blockId;
-
-		GoToBlock(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_BLOCK)
+		struct IncreaseReadLevel : public BytecodeCommand
 		{
-			this->blockId = blockId;
-		}
-	};
+			IncreaseReadLevel() : BytecodeCommand(Instruction::CMD_INC_READ_LEVEL) { }
+		};
 
-	struct GoToIfTrue : public BytecodeCommand
-	{
-		unsigned int blockId;
-
-		GoToIfTrue(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_IF_TRUE)
+		struct DecreaseReadLevel : public BytecodeCommand
 		{
-			this->blockId = blockId;
-		}
-	};
+			DecreaseReadLevel() : BytecodeCommand(Instruction::CMD_DEC_READ_LEVEL) { }
+		};
 
-	struct GoToIfFalse : public BytecodeCommand
-	{
-		unsigned int blockId;
-
-		GoToIfFalse(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_IF_FALSE)
+		struct LeaveBlock : public BytecodeCommand
 		{
-			this->blockId = blockId;
-		}
-	};
+			LeaveBlock() : BytecodeCommand(Instruction::CMD_LEAVE_BLOCK) { }
+		};
 
-	struct CallFunction : public BytecodeCommand
-	{
-		unsigned int blockId;
-
-		CallFunction(unsigned int blockId) : BytecodeCommand(Instruction::CMD_CALL_FUNCTION)
+		struct StackPopObject : public BytecodeCommand
 		{
-			this->blockId = blockId;
-		}
-	};
+			std::string varName;
+			int whichStack;
 
-	struct CallNativeFunction : public BytecodeCommand
-	{
-		std::string fnName;
-		unsigned int blockId;
-		unsigned int numArgs;
+			StackPopObject(const std::string &varName, int whichStack) : BytecodeCommand(Instruction::CMD_STACK_POP_OBJECT)
+			{
+				this->varName = varName;
+				this->whichStack = whichStack;
+			}
+		};
 
-		CallNativeFunction(const std::string &fnName, unsigned int blockId, unsigned int numArgs) : BytecodeCommand(Instruction::CMD_CALL_NATIVE_FUNCTION)
+		struct CreateBlock : public BytecodeCommand
 		{
-			this->fnName = fnName;
-			this->blockId = blockId;
-			this->numArgs = numArgs;
-		}
-	};
+			BlockType blockType;
+			unsigned int blockId;
+			unsigned int parentId;
 
-	struct CreateNativeClassInstance : public BytecodeCommand
-	{
-		std::string className;
+			CreateBlock(BlockType blockType, unsigned int blockId, unsigned int parentId) : BytecodeCommand(Instruction::CMD_CREATE_BLOCK)
+			{
+				this->blockType = blockType;
+				this->blockId = blockId;
+				this->parentId = parentId;
+			}
+		};
 
-		CreateNativeClassInstance(const std::string &className) : BytecodeCommand(Instruction::CMD_CREATE_NATIVE_CLASS_INSTANCE)
+		struct GoToBlock : public BytecodeCommand
 		{
-			this->className = className;
-		}
-	};
+			unsigned int blockId;
 
-	struct CreateFunction : public BytecodeCommand
-	{
-		std::string functionName;
-		std::string returnType;
+			GoToBlock(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_BLOCK)
+			{
+				this->blockId = blockId;
+			}
+		};
 
-		CreateFunction(const std::string &functionName, const std::string &returnType) : BytecodeCommand(Instruction::CMD_CREATE_FUNCTION)
+		struct GoToIfTrue : public BytecodeCommand
 		{
-			this->functionName = functionName;
-			this->returnType = returnType;
-		}
-	};
+			unsigned int blockId;
 
-	struct LeaveFunction : public BytecodeCommand
-	{
-		LeaveFunction() : BytecodeCommand(Instruction::CMD_LEAVE_FUNCTION) { }
-	};
+			GoToIfTrue(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_IF_TRUE)
+			{
+				this->blockId = blockId;
+			}
+		};
 
-	struct PushFunctionChain : public BytecodeCommand
-	{
-		PushFunctionChain() : BytecodeCommand(Instruction::CMD_PUSH_FUNCTION_CHAIN) { }
-	};
-
-	struct PopFunctionChain : public BytecodeCommand
-	{
-		PopFunctionChain() : BytecodeCommand(Instruction::CMD_POP_FUNCTION_CHAIN) { }
-	};
-
-	struct IfStatement : public BytecodeCommand
-	{
-		IfStatement() : BytecodeCommand(Instruction::CMD_IF_STATEMENT)
+		struct GoToIfFalse : public BytecodeCommand
 		{
-		}
-	};
+			unsigned int blockId;
 
-	struct ElseStatement : public BytecodeCommand
-	{
-		ElseStatement() : BytecodeCommand(Instruction::CMD_ELSE_STATEMENT) { }
-	};
+			GoToIfFalse(unsigned int blockId) : BytecodeCommand(Instruction::CMD_GO_TO_IF_FALSE)
+			{
+				this->blockId = blockId;
+			}
+		};
 
-	struct LeaveIfStatement : public BytecodeCommand
-	{
-		LeaveIfStatement() : BytecodeCommand(Instruction::CMD_LEAVE_IF_STATEMENT) { }
-	};
-
-	struct LeaveElseStatement : public BytecodeCommand
-	{
-		LeaveElseStatement() : BytecodeCommand(Instruction::CMD_LEAVE_ELSE_STATEMENT) { }
-	};
-
-	struct VarCreate : public BytecodeCommand
-	{
-		VarType varType;
-		std::string varName;
-
-		VarCreate(VarType varType, const std::string &varName) : BytecodeCommand(Instruction::CMD_CREATE_VAR)
+		struct CallFunction : public BytecodeCommand
 		{
-			this->varType = varType;
-			this->varName = varName;
-		}
-	};
+			unsigned int blockId;
 
-	struct VarAddProperty : public BytecodeCommand
-	{
-		std::string varName;
-		std::string propertyName;
+			CallFunction(unsigned int blockId) : BytecodeCommand(Instruction::CMD_CALL_FUNCTION)
+			{
+				this->blockId = blockId;
+			}
+		};
 
-		VarAddProperty(const std::string &varName, const std::string &propertyName) : BytecodeCommand(Instruction::CMD_ADD_PROPERTY)
+		struct CallNativeFunction : public BytecodeCommand
 		{
-			this->varName = varName;
-			this->propertyName = propertyName;
-		}
-	};
+			std::string fnName;
+			unsigned int blockId;
+			unsigned int numArgs;
 
-	struct VarPushProperty : public BytecodeCommand
-	{
-		std::string varName;
-		std::string propertyName;
+			CallNativeFunction(const std::string &fnName, unsigned int blockId, unsigned int numArgs) : BytecodeCommand(Instruction::CMD_CALL_NATIVE_FUNCTION)
+			{
+				this->fnName = fnName;
+				this->blockId = blockId;
+				this->numArgs = numArgs;
+			}
+		};
 
-		VarPushProperty(const std::string &varName, const std::string &propertyName) : BytecodeCommand(Instruction::CMD_PUSH_PROPERTY)
+		struct CreateNativeClassInstance : public BytecodeCommand
 		{
-			this->varName = varName;
-			this->propertyName = propertyName;
-		}
-	};
+			std::string className;
 
-	struct DeleteObject : public BytecodeCommand
-	{
-		std::string varName;
+			CreateNativeClassInstance(const std::string &className) : BytecodeCommand(Instruction::CMD_CREATE_NATIVE_CLASS_INSTANCE)
+			{
+				this->className = className;
+			}
+		};
 
-		DeleteObject(const std::string &varName) : BytecodeCommand(Instruction::CMD_CLEAR_VAR)
+		struct CreateFunction : public BytecodeCommand
 		{
-			this->varName = varName;
-		}
-	};
+			std::string functionName;
+			std::string returnType;
 
-	struct RemoveReference : public BytecodeCommand
-	{
-		std::string varName;
+			CreateFunction(const std::string &functionName, const std::string &returnType) : BytecodeCommand(Instruction::CMD_CREATE_FUNCTION)
+			{
+				this->functionName = functionName;
+				this->returnType = returnType;
+			}
+		};
 
-		RemoveReference(const std::string &varName) : BytecodeCommand(Instruction::CMD_DELETE_VAR)
+		struct LeaveFunction : public BytecodeCommand
 		{
-			this->varName = varName;
-		}
-	};
+			LeaveFunction() : BytecodeCommand(Instruction::CMD_LEAVE_FUNCTION) { }
+		};
 
-	struct LoopBreak : public BytecodeCommand
-	{
-		int levelsToSkip;
-
-		LoopBreak(int levelsToSkip) : BytecodeCommand(Instruction::CMD_LOOP_BREAK)
+		struct PushFunctionChain : public BytecodeCommand
 		{
-			this->levelsToSkip = levelsToSkip;
-		}
-	};
+			PushFunctionChain() : BytecodeCommand(Instruction::CMD_PUSH_FUNCTION_CHAIN) { }
+		};
 
-	struct LoopContinue : public BytecodeCommand
-	{
-		int levelsToSkip;
-
-		LoopContinue(int levelsToSkip) : BytecodeCommand(Instruction::CMD_LOOP_CONTINUE)
+		struct PopFunctionChain : public BytecodeCommand
 		{
-			this->levelsToSkip = levelsToSkip;
-		}
-	};
+			PopFunctionChain() : BytecodeCommand(Instruction::CMD_POP_FUNCTION_CHAIN) { }
+		};
 
-	struct LoadInteger : public BytecodeCommand
-	{
-		long val;
-
-		LoadInteger(long intValue) : BytecodeCommand(Instruction::CMD_LOAD_INTEGER)
+		struct IfStatement : public BytecodeCommand
 		{
-			val = intValue;
-		}
-	};
+			IfStatement() : BytecodeCommand(Instruction::CMD_IF_STATEMENT)
+			{
+			}
+		};
 
-	struct LoadFloat : public BytecodeCommand
-	{
-		double val;
-
-		LoadFloat(double floatValue) : BytecodeCommand(Instruction::CMD_LOAD_FLOAT)
+		struct ElseStatement : public BytecodeCommand
 		{
-			val = floatValue;
-		}
-	};
+			ElseStatement() : BytecodeCommand(Instruction::CMD_ELSE_STATEMENT) { }
+		};
 
-	struct LoadVariable : public BytecodeCommand
-	{
-		std::string val;
-
-		LoadVariable(const std::string &name) : BytecodeCommand(Instruction::CMD_LOAD_VARIABLE)
+		struct LeaveIfStatement : public BytecodeCommand
 		{
-			val = name;
-		}
-	};
+			LeaveIfStatement() : BytecodeCommand(Instruction::CMD_LEAVE_IF_STATEMENT) { }
+		};
 
-	struct LoadString : public BytecodeCommand
-	{
-		std::string val;
-
-		LoadString(const std::string &strValue) : BytecodeCommand(Instruction::CMD_LOAD_STRING)
+		struct LeaveElseStatement : public BytecodeCommand
 		{
-			val = strValue;
-		}
-	};
+			LeaveElseStatement() : BytecodeCommand(Instruction::CMD_LEAVE_ELSE_STATEMENT) { }
+		};
 
-	struct LoadNull : public BytecodeCommand
-	{
-		LoadNull() : BytecodeCommand(Instruction::CMD_LOAD_NULL) { }
-	};
-
-	struct OpPush : public BytecodeCommand
-	{
-		int whichStack;
-		OpPush(int stack) : BytecodeCommand(Instruction::CMD_OP_PUSH)
+		struct VarCreate : public BytecodeCommand
 		{
-			whichStack = stack;
-		}
-	};
+			VarType varType;
+			std::string varName;
 
-	struct OpClear : public BytecodeCommand
-	{
-		OpClear() : BytecodeCommand(Instruction::CMD_OP_CLEAR) { }
-	};
+			VarCreate(VarType varType, const std::string &varName) : BytecodeCommand(Instruction::CMD_CREATE_VAR)
+			{
+				this->varType = varType;
+				this->varName = varName;
+			}
+		};
 
-	struct OpBinaryAdd : public BytecodeCommand
-	{
-		OpBinaryAdd() : BytecodeCommand(Instruction::CMD_OP_ADD) { }
-	};
+		struct VarAddProperty : public BytecodeCommand
+		{
+			std::string varName;
+			std::string propertyName;
 
-	struct OpBinarySub : public BytecodeCommand
-	{
-		OpBinarySub() : BytecodeCommand(Instruction::CMD_OP_SUB) { }
-	};
+			VarAddProperty(const std::string &varName, const std::string &propertyName) : BytecodeCommand(Instruction::CMD_ADD_PROPERTY)
+			{
+				this->varName = varName;
+				this->propertyName = propertyName;
+			}
+		};
 
-	struct OpBinaryMul : public BytecodeCommand
-	{
-		OpBinaryMul() : BytecodeCommand(Instruction::CMD_OP_MUL) { }
-	};
+		struct VarPushProperty : public BytecodeCommand
+		{
+			std::string varName;
+			std::string propertyName;
 
-	struct OpBinaryDiv : public BytecodeCommand
-	{
-		OpBinaryDiv() : BytecodeCommand(Instruction::CMD_OP_DIV) { }
-	};
+			VarPushProperty(const std::string &varName, const std::string &propertyName) : BytecodeCommand(Instruction::CMD_PUSH_PROPERTY)
+			{
+				this->varName = varName;
+				this->propertyName = propertyName;
+			}
+		};
 
-	struct OpBinaryMod : public BytecodeCommand
-	{
-		OpBinaryMod() : BytecodeCommand(Instruction::CMD_OP_MOD) { }
-	};
+		struct DeleteObject : public BytecodeCommand
+		{
+			std::string varName;
 
-	struct OpBinaryPow : public BytecodeCommand
-	{
-		OpBinaryPow() : BytecodeCommand(Instruction::CMD_OP_POW) { }
-	};
+			DeleteObject(const std::string &varName) : BytecodeCommand(Instruction::CMD_CLEAR_VAR)
+			{
+				this->varName = varName;
+			}
+		};
 
-	struct OpUnaryNot : public BytecodeCommand
-	{
-		OpUnaryNot() : BytecodeCommand(Instruction::CMD_OP_UNARY_NOT) { }
-	};
+		struct RemoveReference : public BytecodeCommand
+		{
+			std::string varName;
 
-	struct OpUnaryMinus : public BytecodeCommand
-	{
-		OpUnaryMinus() : BytecodeCommand(Instruction::CMD_OP_UNARY_NEG) { }
-	};
+			RemoveReference(const std::string &varName) : BytecodeCommand(Instruction::CMD_DELETE_VAR)
+			{
+				this->varName = varName;
+			}
+		};
 
-	struct OpUnaryPos : public BytecodeCommand
-	{
-		OpUnaryPos() : BytecodeCommand(Instruction::CMD_OP_UNARY_POS) { }
-	};
+		struct LoopBreak : public BytecodeCommand
+		{
+			int levelsToSkip;
 
-	struct OpBinaryAnd : public BytecodeCommand
-	{
-		OpBinaryAnd() : BytecodeCommand(Instruction::CMD_OP_AND) { }
-	};
+			LoopBreak(int levelsToSkip) : BytecodeCommand(Instruction::CMD_LOOP_BREAK)
+			{
+				this->levelsToSkip = levelsToSkip;
+			}
+		};
 
-	struct OpBinaryOr : public BytecodeCommand
-	{
-		OpBinaryOr() : BytecodeCommand(Instruction::CMD_OP_OR) { }
-	};
+		struct LoopContinue : public BytecodeCommand
+		{
+			int levelsToSkip;
 
-	struct OpBinaryEql : public BytecodeCommand
-	{
-		OpBinaryEql() : BytecodeCommand(Instruction::CMD_OP_EQL) { }
-	};
+			LoopContinue(int levelsToSkip) : BytecodeCommand(Instruction::CMD_LOOP_CONTINUE)
+			{
+				this->levelsToSkip = levelsToSkip;
+			}
+		};
 
-	struct OpBinaryNotEql : public BytecodeCommand
-	{
-		OpBinaryNotEql() : BytecodeCommand(Instruction::CMD_OP_NEQL) { }
-	};
+		struct LoadInteger : public BytecodeCommand
+		{
+			long val;
 
-	struct OpBinaryLT : public BytecodeCommand
-	{
-		OpBinaryLT() : BytecodeCommand(Instruction::CMD_OP_LT) { }
-	};
+			LoadInteger(long intValue) : BytecodeCommand(Instruction::CMD_LOAD_INTEGER)
+			{
+				val = intValue;
+			}
+		};
 
-	struct OpBinaryGT : public BytecodeCommand
-	{
-		OpBinaryGT() : BytecodeCommand(Instruction::CMD_OP_GT) { }
-	};
+		struct LoadFloat : public BytecodeCommand
+		{
+			double val;
 
-	struct OpBinaryLTE : public BytecodeCommand
-	{
-		OpBinaryLTE() : BytecodeCommand(Instruction::CMD_OP_LTE) { }
-	};
+			LoadFloat(double floatValue) : BytecodeCommand(Instruction::CMD_LOAD_FLOAT)
+			{
+				val = floatValue;
+			}
+		};
 
-	struct OpBinaryGTE : public BytecodeCommand
-	{
-		OpBinaryGTE() : BytecodeCommand(Instruction::CMD_OP_GTE) { }
-	};
+		struct LoadVariable : public BytecodeCommand
+		{
+			std::string val;
 
-	struct OpBinaryAssign : public BytecodeCommand
-	{
-		OpBinaryAssign() : BytecodeCommand(Instruction::CMD_OP_ASSIGN) { }
-	};
+			LoadVariable(const std::string &name) : BytecodeCommand(Instruction::CMD_LOAD_VARIABLE)
+			{
+				val = name;
+			}
+		};
 
-	struct OpBinaryAddAssign : public BytecodeCommand
-	{
-		OpBinaryAddAssign() : BytecodeCommand(Instruction::CMD_OP_ADD_ASSIGN) { }
-	};
+		struct LoadString : public BytecodeCommand
+		{
+			std::string val;
 
-	struct OpBinarySubAssign : public BytecodeCommand
-	{
-		OpBinarySubAssign() : BytecodeCommand(Instruction::CMD_OP_SUB_ASSIGN) { }
-	};
+			LoadString(const std::string &strValue) : BytecodeCommand(Instruction::CMD_LOAD_STRING)
+			{
+				val = strValue;
+			}
+		};
 
-	struct OpBinaryMulAssign : public BytecodeCommand
-	{
-		OpBinaryMulAssign() : BytecodeCommand(Instruction::CMD_OP_MUL_ASSIGN) { }
-	};
+		struct LoadNull : public BytecodeCommand
+		{
+			LoadNull() : BytecodeCommand(Instruction::CMD_LOAD_NULL) { }
+		};
 
-	struct OpBinaryDivAssign : public BytecodeCommand
-	{
-		OpBinaryDivAssign() : BytecodeCommand(Instruction::CMD_OP_DIV_ASSIGN) { }
-	};
+		struct OpPush : public BytecodeCommand
+		{
+			int whichStack;
+			OpPush(int stack) : BytecodeCommand(Instruction::CMD_OP_PUSH)
+			{
+				whichStack = stack;
+			}
+		};
+
+		struct OpClear : public BytecodeCommand
+		{
+			OpClear() : BytecodeCommand(Instruction::CMD_OP_CLEAR) { }
+		};
+
+		struct OpBinaryAdd : public BytecodeCommand
+		{
+			OpBinaryAdd() : BytecodeCommand(Instruction::CMD_OP_ADD) { }
+		};
+
+		struct OpBinarySub : public BytecodeCommand
+		{
+			OpBinarySub() : BytecodeCommand(Instruction::CMD_OP_SUB) { }
+		};
+
+		struct OpBinaryMul : public BytecodeCommand
+		{
+			OpBinaryMul() : BytecodeCommand(Instruction::CMD_OP_MUL) { }
+		};
+
+		struct OpBinaryDiv : public BytecodeCommand
+		{
+			OpBinaryDiv() : BytecodeCommand(Instruction::CMD_OP_DIV) { }
+		};
+
+		struct OpBinaryMod : public BytecodeCommand
+		{
+			OpBinaryMod() : BytecodeCommand(Instruction::CMD_OP_MOD) { }
+		};
+
+		struct OpBinaryPow : public BytecodeCommand
+		{
+			OpBinaryPow() : BytecodeCommand(Instruction::CMD_OP_POW) { }
+		};
+
+		struct OpUnaryNot : public BytecodeCommand
+		{
+			OpUnaryNot() : BytecodeCommand(Instruction::CMD_OP_UNARY_NOT) { }
+		};
+
+		struct OpUnaryMinus : public BytecodeCommand
+		{
+			OpUnaryMinus() : BytecodeCommand(Instruction::CMD_OP_UNARY_NEG) { }
+		};
+
+		struct OpUnaryPos : public BytecodeCommand
+		{
+			OpUnaryPos() : BytecodeCommand(Instruction::CMD_OP_UNARY_POS) { }
+		};
+
+		struct OpBinaryAnd : public BytecodeCommand
+		{
+			OpBinaryAnd() : BytecodeCommand(Instruction::CMD_OP_AND) { }
+		};
+
+		struct OpBinaryOr : public BytecodeCommand
+		{
+			OpBinaryOr() : BytecodeCommand(Instruction::CMD_OP_OR) { }
+		};
+
+		struct OpBinaryEql : public BytecodeCommand
+		{
+			OpBinaryEql() : BytecodeCommand(Instruction::CMD_OP_EQL) { }
+		};
+
+		struct OpBinaryNotEql : public BytecodeCommand
+		{
+			OpBinaryNotEql() : BytecodeCommand(Instruction::CMD_OP_NEQL) { }
+		};
+
+		struct OpBinaryLT : public BytecodeCommand
+		{
+			OpBinaryLT() : BytecodeCommand(Instruction::CMD_OP_LT) { }
+		};
+
+		struct OpBinaryGT : public BytecodeCommand
+		{
+			OpBinaryGT() : BytecodeCommand(Instruction::CMD_OP_GT) { }
+		};
+
+		struct OpBinaryLTE : public BytecodeCommand
+		{
+			OpBinaryLTE() : BytecodeCommand(Instruction::CMD_OP_LTE) { }
+		};
+
+		struct OpBinaryGTE : public BytecodeCommand
+		{
+			OpBinaryGTE() : BytecodeCommand(Instruction::CMD_OP_GTE) { }
+		};
+
+		struct OpBinaryAssign : public BytecodeCommand
+		{
+			OpBinaryAssign() : BytecodeCommand(Instruction::CMD_OP_ASSIGN) { }
+		};
+
+		struct OpBinaryAddAssign : public BytecodeCommand
+		{
+			OpBinaryAddAssign() : BytecodeCommand(Instruction::CMD_OP_ADD_ASSIGN) { }
+		};
+
+		struct OpBinarySubAssign : public BytecodeCommand
+		{
+			OpBinarySubAssign() : BytecodeCommand(Instruction::CMD_OP_SUB_ASSIGN) { }
+		};
+
+		struct OpBinaryMulAssign : public BytecodeCommand
+		{
+			OpBinaryMulAssign() : BytecodeCommand(Instruction::CMD_OP_MUL_ASSIGN) { }
+		};
+
+		struct OpBinaryDivAssign : public BytecodeCommand
+		{
+			OpBinaryDivAssign() : BytecodeCommand(Instruction::CMD_OP_DIV_ASSIGN) { }
+		};
+	}
 }
 
 #endif

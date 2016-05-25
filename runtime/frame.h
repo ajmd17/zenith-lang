@@ -1,5 +1,5 @@
-#ifndef __CONTEXT_H__
-#define __CONTEXT_H__
+#ifndef __ZENITH_RUNTIME_FRAME_H__
+#define __ZENITH_RUNTIME_FRAME_H__
 
 #include <string>
 #include <vector>
@@ -13,30 +13,33 @@
 
 namespace zenith
 {
-	class StackFrame
+	namespace runtime
 	{
-	private:
-		bool lastIfResult;
-		std::vector<std::pair<std::string, ValuePtr>> locals;
-		
-		Evaluator evaluator;
+		class StackFrame
+		{
+		private:
+			bool lastIfResult;
+			std::vector<std::pair<std::string, ValuePtr>> locals;
 
-	public:
-		StackFrame() { }
-		~StackFrame();
+			Evaluator evaluator;
 
-		bool getLastIfResult() const { return lastIfResult; }
-		void setLastIfResult(bool b) { lastIfResult = b; }
+		public:
+			StackFrame() { }
+			~StackFrame();
 
-		Evaluator &getEvaluator();
+			bool getLastIfResult() const { return lastIfResult; }
+			void setLastIfResult(bool b) { lastIfResult = b; }
 
-		bool hasLocal(const std::string &identifier);
-		ValuePtr &getLocal(const std::string &identifier);
-		ValuePtr createLocal(const std::string &identifier);
-		void clearLocal(const std::string &identifier);
-		void clearLocal(ValuePtr &val);
-		void deleteLocal(const std::string &identifier);
-	};
+			Evaluator &getEvaluator();
+
+			bool hasLocal(const std::string &identifier);
+			ValuePtr &getLocal(const std::string &identifier);
+			ValuePtr createLocal(const std::string &identifier);
+			void clearLocal(const std::string &identifier);
+			void clearLocal(ValuePtr &val);
+			void deleteLocal(const std::string &identifier);
+		};
+	}
 }
 
 #endif

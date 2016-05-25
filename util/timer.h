@@ -1,25 +1,28 @@
-#ifndef __TIMER_H__
-#define __TIMER_H__
+#ifndef __ZENITH_UTIL_TIMER_H__
+#define __ZENITH_UTIL_TIMER_H__
 
 #include <time.h>
 
 namespace zenith
 {
-	class Timer 
+	namespace util
 	{
-	private:
-		unsigned long beginning;
-	public:
-		void start() 
+		class Timer
 		{
-			beginning = clock();
-		}
+		private:
+			unsigned long beginning;
+		public:
+			void start()
+			{
+				beginning = clock();
+			}
 
-		double elapsedTime() const
-		{
-			return ((double)(clock() - beginning)) / CLOCKS_PER_SEC;
-		}
-	};
+			double elapsedTime() const
+			{
+				return ((double)(clock() - beginning)) / CLOCKS_PER_SEC;
+			}
+		};
+	}
 }
 
 #endif

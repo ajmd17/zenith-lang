@@ -1,84 +1,87 @@
-#ifndef __BYTEREADER_H__
-#define __BYTEREADER_H__
+#ifndef __ZENITH_RUNTIME_BYTEREADER_H__
+#define __ZENITH_RUNTIME_BYTEREADER_H__
 
 #include <fstream>
 
 namespace zenith
 {
-	class ByteReader
+	namespace runtime
 	{
-	protected:
-		virtual void readBytes(char *ptr, unsigned size) = NULL;
-
-	public:
-		template <typename T>
-		void read(T *ptr, unsigned size = sizeof(T))
+		class ByteReader
 		{
-			readBytes(reinterpret_cast<char*>(ptr), size);
-		}
+		protected:
+			virtual void readBytes(char *ptr, unsigned size) = NULL;
 
-		virtual std::streampos position() const = NULL;
-		virtual std::streampos max() const = NULL;
-		virtual void skip(unsigned amount) = NULL;
-		virtual void seek(unsigned long whereTo) = NULL;
-		virtual bool eof() const = NULL;
-	};
+		public:
+			template <typename T>
+			void read(T *ptr, unsigned size = sizeof(T))
+			{
+				readBytes(reinterpret_cast<char*>(ptr), size);
+			}
 
-	class FileByteReader : public ByteReader
-	{
-	private:
-		std::istream *file;
-		std::streampos pos;
-		std::streampos maxPos;
+			virtual std::streampos position() const = NULL;
+			virtual std::streampos max() const = NULL;
+			virtual void skip(unsigned amount) = NULL;
+			virtual void seek(unsigned long whereTo) = NULL;
+			virtual bool eof() const = NULL;
+		};
 
-	public:
-		FileByteReader(const std::string &filepath, std::streampos begin=0)
+		class FileByteReader : public ByteReader
 		{
-			file = new std::ifstream(filepath, std::ifstream::in |
-				std::ifstream::binary |
-				std::ifstream::ate);
+		private:
+			std::istream *file;
+			std::streampos pos;
+			std::streampos maxPos;
 
-			maxPos = file->tellg();
-			file->seekg(begin);
-			pos = file->tellg();
-		}
+		public:
+			FileByteReader(const std::string &filepath, std::streampos begin = 0)
+			{
+				file = new std::ifstream(filepath, std::ifstream::in |
+					std::ifstream::binary |
+					std::ifstream::ate);
 
-		~FileByteReader()
-		{
-			delete file;
-		}
+				maxPos = file->tellg();
+				file->seekg(begin);
+				pos = file->tellg();
+			}
 
-		std::streampos position() const
-		{
-			return pos;
-		}
+			~FileByteReader()
+			{
+				delete file;
+			}
 
-		std::streampos max() const
-		{
-			return maxPos;
-		}
+			std::streampos position() const
+			{
+				return pos;
+			}
 
-		void readBytes(char *ptr, unsigned size)
-		{
-			file->read(ptr, size);
-			pos += size;
-		}
+			std::streampos max() const
+			{
+				return maxPos;
+			}
 
-		void skip(unsigned amount)
-		{
-			file->seekg(pos += amount);
-		}
+			void readBytes(char *ptr, unsigned size)
+			{
+				file->read(ptr, size);
+				pos += size;
+			}
 
-		void seek(unsigned long whereTo)
-		{
-			file->seekg(pos = whereTo);
-		}
+			void skip(unsigned amount)
+			{
+				file->seekg(pos += amount);
+			}
 
-		bool eof() const
-		{
-			return file->eof();
-		}
-	};
+			void seek(unsigned long whereTo)
+			{
+				file->seekg(pos = whereTo);
+			}
+
+			bool eof() const
+			{
+				return file->eof();
+			}
+		};
+	}
 }
 
 #endif
