@@ -2,6 +2,8 @@
 
 #include <algorithm>
 
+#include "experimental/object.h"
+
 #define VALUE_SEARCH_CHECKS 1
 
 namespace zenith
@@ -21,7 +23,7 @@ namespace zenith
 		bool StackFrame::hasLocal(const std::string &identifier)
 		{
 			auto elt = std::find_if(locals.begin(), locals.end(),
-				[&identifier](const std::pair<std::string, ValuePtr> &element)
+				[&identifier](const std::pair<std::string, ObjectPtr> &element)
 			{
 				return element.first == identifier;
 			});
@@ -29,10 +31,10 @@ namespace zenith
 			return elt != locals.end();
 		}
 
-		ValuePtr &StackFrame::getLocal(const std::string &identifier)
+		ObjectPtr &StackFrame::getLocal(const std::string &identifier)
 		{
 			auto elt = std::find_if(locals.begin(), locals.end(),
-				[&identifier](const std::pair<std::string, ValuePtr> &element)
+				[&identifier](const std::pair<std::string, ObjectPtr> &element)
 			{
 				return element.first == identifier;
 			});
@@ -40,17 +42,17 @@ namespace zenith
 			if (elt->second != nullptr)
 				return elt->second;
 
-			return ValuePtr(nullptr);
+			throw std::runtime_error("Value does not exist");
 		}
 
-		ValuePtr StackFrame::createLocal(const std::string &identifier)
+		ObjectPtr StackFrame::createLocal(const std::string &identifier)
 		{
 			#if VALUE_SEARCH_CHECKS
 			if (hasLocal(identifier))
 				throw std::runtime_error("Value already created");
 			#endif
 
-			auto local = std::make_shared<Value>();
+			auto local = std::make_shared<Object>();
 			locals.push_back({ identifier, local });
 			return local;
 		}
@@ -66,7 +68,7 @@ namespace zenith
 			clearLocal(val);
 		}
 
-		void StackFrame::clearLocal(ValuePtr &val)
+		void StackFrame::clearLocal(ObjectPtr &val)
 		{
 			if (val != nullptr)
 			{
@@ -78,7 +80,7 @@ namespace zenith
 		void StackFrame::deleteLocal(const std::string &identifier)
 		{
 			auto elt = std::find_if(locals.begin(), locals.end(),
-				[&identifier](const std::pair<std::string, ValuePtr> &element)
+				[&identifier](const std::pair<std::string, ObjectPtr> &element)
 			{
 				return element.first == identifier;
 			});

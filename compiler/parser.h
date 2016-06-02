@@ -21,6 +21,7 @@ namespace zenith
 			AstNode *moduleAst;
 
 			std::string filepath;
+			std::string lastVariable;
 
 			SourceLocation location();
 
@@ -52,8 +53,11 @@ namespace zenith
 			std::unique_ptr<AstNode> parseTrue();
 			std::unique_ptr<AstNode> parseFalse();
 			std::unique_ptr<AstNode> parseNull();
+			std::unique_ptr<AstNode> parseSelf();
+			std::unique_ptr<AstNode> parseNew(const std::string &identifier);
 			std::unique_ptr<AstNode> parseBinaryOperation(int exprPrec, std::unique_ptr<AstNode> left);
 			std::unique_ptr<AstNode> parseUnaryOperation();
+			std::unique_ptr<AstNode> parseClass();
 			std::unique_ptr<AstNode> parseBlock();
 			std::unique_ptr<AstNode> parseFunctionDefinition();
 			std::unique_ptr<AstNode> parseIfStatement();

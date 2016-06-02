@@ -11,9 +11,12 @@ namespace zenith
 {
 	namespace runtime
 	{
-		typedef std::stack<ValuePtr> ExpressionStack;
-		typedef Value &(Value::*BinaryOp)(Value *other);
-		typedef Value &(Value::*UnaryOp)();
+		class Object;
+		typedef std::shared_ptr<Object> ObjectPtr;
+
+		typedef std::stack<ObjectPtr> ExpressionStack;
+		typedef Object &(Object::*BinaryOp)(Object *other);
+		typedef Object &(Object::*UnaryOp)();
 
 		class Evaluator
 		{
@@ -23,13 +26,13 @@ namespace zenith
 		public:
 			ExpressionStack &getStack() { return exprStack; }
 
-			void push(std::stack<ValuePtr> &objectStack);
+			void push(ExpressionStack &whereTo);
 			void clear();
 
 			void loadInteger(long value);
 			void loadFloat(double value);
 			void loadString(const std::string &value);
-			void loadVariable(ValuePtr &value);
+			void loadObject(ObjectPtr &object);
 			void loadNull();
 
 			void assign();

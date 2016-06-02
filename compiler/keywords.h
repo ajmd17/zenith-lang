@@ -50,7 +50,7 @@ namespace zenith
 			KW_AS,
 			KW_CAST,
 			KW_IMPORT,
-			KW_THIS,
+			KW_SELF,
 			KW_NEW,
 			KW_DELETE
 		};
@@ -95,7 +95,7 @@ namespace zenith
 			{ "as", KW_AS },
 			{ "cast", KW_CAST },
 			{ "import", KW_IMPORT },
-			{ "this", KW_THIS },
+			{ "self", KW_SELF },
 			{ "new", KW_NEW },
 			{ "delete", KW_DELETE }
 		};

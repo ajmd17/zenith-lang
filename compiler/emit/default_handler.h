@@ -14,20 +14,42 @@ namespace zenith
 {
 	namespace compiler
 	{
+		struct VariableInfo
+		{
+			bool isClass = false;
+			ClassAst *classType = nullptr;
+
+			VariableInfo() {}
+			VariableInfo(bool isClass, ClassAst *classType)
+			{
+				this->isClass = isClass;
+				this->classType = classType;
+			}
+		};
+
 		struct Level
 		{
 			// maps the 'mangled' function names to their definitions
-			std::map<std::string, FunctionDefinitionAst*> functionDeclarations;
-			std::vector<std::string> variableNames;
-
+			std::vector<
+				std::pair<
+					std::string, 
+					FunctionDefinitionAst*
+				>
+			> functionDeclarations;
+			// holds all variable names
+			std::map<
+					std::string,
+					VariableInfo
+			> variableNames;
+			// is it a function, if statement, loop, etc.
 			BlockType type;
 		};
 
 		enum ReturnMessage
 		{
+			FN_NOT_FOUND,
 			FN_TOO_MANY_ARGS,
 			FN_TOO_FEW_ARGS,
-			FN_NOT_FOUND,
 			FN_FOUND,
 
 			VAR_NOT_FOUND,
@@ -39,24 +61,68 @@ namespace zenith
 		private:
 			BytecodeCommandList commandList;
 
-			std::vector<std::shared_ptr<FunctionDefinitionAst>> nativeFunctions;
-			std::map<std::string, std::unique_ptr<ModuleAst>> externalModules;
+			std::vector<
+				std::shared_ptr<
+				FunctionDefinitionAst
+				>
+			> nativeFunctions;
+
+			std::map<
+				std::string, 
+				std::unique_ptr<
+					ModuleAst
+				>
+			> externalModules;
+			ModuleAst *mainModule;
+
+			std::map<
+				std::string, 
+				ClassAst*
+			> classTypes;
+
+			std::map<
+				std::string,
+				unsigned long
+			> classInstanceId;
+
+			std::pair<
+				std::string, 
+				ClassAst*
+			> self;
+
+			static const std::string SELF_DEFAULT, SELF_GLOBAL;
+			static const int LEVEL_GLOBAL;
 
 			int blockIdNum = 0;
 			std::map<FunctionDefinitionAst*, int> functionDefBlockIds;
 
-			int level = -1; // todo: map module name to levels
+			int level = -1;
 			std::map<int, Level> levels;
 
+			bool isModule(const std::string &name);
+
 			bool varInScope(const std::string &name);
-			ReturnMessage fnInScope(const std::string &name, int nArgs, FunctionDefinitionAst *&out);
+			bool varInScope(const std::string &name, 
+				VariableInfo &outInfo);
+			int getVarLevel(const std::string &name);
+			ReturnMessage fnInScope(const std::string &name, 
+				int nArgs, 
+				FunctionDefinitionAst *&out);
 
 			ParserState state;
 
 			void increaseBlock(BlockType type);
 			void decreaseBlock();
 
-			std::string makeIdentifier(AstNode *moduleAst, const std::string &original);
+			std::string makeIdentifier(AstNode *moduleAst, 
+				std::pair<std::string, ClassAst*> memberOf,
+				const std::string &original,
+				int numArguments = 0);
+			std::string unmangleIdentifier(const std::string &mangled);
+			bool isIdentifier(const std::string &name, 
+				bool thisScopeOnly=false);
+
+			AstNode *loopMemberAccess(MemberAccessAst *node);
 
 			template <typename T, typename ... Args>
 			typename std::enable_if<std::is_base_of<BytecodeCommand, T>::value, void>::type
@@ -75,7 +141,9 @@ namespace zenith
 			ParserState &getState() { return state; }
 			BytecodeCommandList &getCommands() { return commandList; }
 
-			void defineFunction(const std::string &name, const std::string &moduleName, size_t numArgs);
+			void defineFunction(const std::string &name, 
+				const std::string &moduleName, 
+				size_t numArgs);
 
 		protected:
 			void accept(AstNode *node);
@@ -95,8 +163,11 @@ namespace zenith
 			void accept(TrueAst *node);
 			void accept(FalseAst *node);
 			void accept(NullAst *node);
+			void accept(SelfAst *node);
+			void accept(NewAst *node);
 			void accept(FunctionDefinitionAst *node);
 			void accept(FunctionCallAst *node);
+			void accept(ClassAst *node);
 			void accept(IfStatementAst *node);
 			void accept(ReturnStatementAst *node);
 			void accept(ForLoopAst *node);

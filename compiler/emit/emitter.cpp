@@ -86,7 +86,14 @@ namespace zenith
 					case Instruction::CMD_CALL_FUNCTION:
 					{
 						auto cmd = std::static_pointer_cast<CallFunction>(commandList[i]);
-						this->callFunction(cmd->blockId);
+						this->callFunction(/*cmd->blockId*/cmd->functionName);
+
+						break;
+					}
+					case Instruction::CMD_INVOKE_METHOD:
+					{
+						auto cmd = std::static_pointer_cast<InvokeMethod>(commandList[i]);
+						this->invokeMethod(cmd->functionName);
 
 						break;
 					}
@@ -128,7 +135,7 @@ namespace zenith
 					case Instruction::CMD_CREATE_FUNCTION:
 					{
 						auto cmd = std::static_pointer_cast<CreateFunction>(commandList[i]);
-						this->createFunction(cmd->functionName, cmd->returnType);
+						this->createFunction(cmd->functionName);
 
 						break;
 					}
@@ -335,10 +342,31 @@ namespace zenith
 			}
 			else
 			{
-				// Sort errors by line number (using the < operator overload)
-				std::sort(state.errors.begin(), state.errors.end());
-				for (auto &&error : state.errors)
-					error.display();
+				// map the filepath to vector of errors
+				std::map<
+					std::string, 
+					std::vector<
+						Error
+					>
+				> errorMap;
+
+				for (auto &&it : state.errors)
+				{
+					if (errorMap.find(it.location.file) == errorMap.end())
+						errorMap.insert({ it.location.file, std::vector<Error>() });
+
+					errorMap[it.location.file].push_back(it);
+				}
+
+				for (auto it = errorMap.rbegin(); it != errorMap.rend(); ++it)
+				{
+					std::sort(it->second.begin(), it->second.end());
+
+					std::cout << "Errors in file: " << it->first << "\n";
+
+					for (auto &&error : it->second)
+						error.display();
+				}
 			}
 
 			this->close();
@@ -461,20 +489,28 @@ namespace zenith
 			this->filestream.write(name.c_str(), varNameLen);
 		}
 
-		void Emitter::createFunction(const std::string &funName, const std::string &returnType)
+		void Emitter::createFunction(const std::string &funName)
 		{
 			int32_t type = Instruction::CMD_CREATE_FUNCTION;
 
 			int32_t funNameLen = funName.length() + 1;
-			int32_t returnTypeLen = returnType.length() + 1;
+
+			appendOffset = 0;
+
+			appendOffset += sizeof(int32_t); // cmd type
+			appendOffset += sizeof(int32_t); // name length integer
+			appendOffset += funNameLen;
+			appendOffset += sizeof(uint64_t); // block pos
+
+			uint64_t bPos = ((uint64_t)filestream.tellp());
+			bPos += appendOffset;
 
 			this->filestream.write((char*)&type, sizeof(int32_t));
 
 			this->filestream.write((char*)&funNameLen, sizeof(int32_t));
 			this->filestream.write(funName.c_str(), funNameLen);
 
-			this->filestream.write((char*)&returnTypeLen, sizeof(int32_t));
-			this->filestream.write(returnType.c_str(), returnTypeLen);
+			this->filestream.write((char*)&bPos, sizeof(uint64_t));
 		}
 
 		void Emitter::createNativeClassInstance(const std::string &className)
@@ -489,12 +525,29 @@ namespace zenith
 			this->filestream.write(className.c_str(), classNameLen);
 		}
 
-		void Emitter::callFunction(unsigned int blockId)
+		void Emitter::callFunction(const std::string &name/*unsigned int blockId*/)
 		{
 			int32_t type = Instruction::CMD_CALL_FUNCTION;
 
 			this->filestream.write((char*)&type, sizeof(int32_t));
-			this->filestream.write((char*)&blockId, sizeof(int32_t));
+			//this->filestream.write((char*)&blockId, sizeof(int32_t));
+
+			int32_t nameLen = name.length() + 1;
+			this->filestream.write((char*)&nameLen, sizeof(int32_t));
+
+			this->filestream.write(name.c_str(), nameLen);
+		}
+
+		void Emitter::invokeMethod(const std::string &name)
+		{
+			int32_t type = Instruction::CMD_INVOKE_METHOD;
+
+			this->filestream.write((char*)&type, sizeof(int32_t));
+
+			int32_t nameLen = name.length() + 1;
+			this->filestream.write((char*)&nameLen, sizeof(int32_t));
+
+			this->filestream.write(name.c_str(), nameLen);
 		}
 
 		void Emitter::leaveFunction()

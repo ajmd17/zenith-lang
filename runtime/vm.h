@@ -18,30 +18,38 @@ namespace zenith
 {
 	namespace runtime
 	{
-		typedef std::stack<ValuePtr> ObjectStack;
+		struct VMState;
+
+		class Function;
+		class Object;
+
+		typedef std::shared_ptr<Function> FunctionPtr;
+		typedef std::shared_ptr<Object> ObjectPtr;
+
+		typedef std::stack<ObjectPtr> ObjectStack;
 
 		class VM
 		{
 		private:
-			Value *lastObject;
 			std::vector<ObjectStack> objectStacks;
+
+			std::map<std::string, FunctionPtr> globalFunctions;
 
 			std::map<std::string, std::unique_ptr<NativeFunctionBase>> nativeFunctions;
 			std::map<std::string, std::unique_ptr<NativeClassBase>> nativeClasses;
 
-			ByteReader *byteReader;
+			VMState *state;
 
-			int blockLevel, readLevel;
+			int blockLevel;
 
-			void instruction(Instruction ins, std::unique_ptr<Module> &module);
-
-			ObjectStack &getObjectStack(int id);
+			inline ObjectStack &getObjectStack(int id);
 
 		public:
-			VM(ByteReader *byteReader);
+			VM(VMState *state);
 			~VM();
 
 			void exec();
+			void handleInstruction(Instruction ins, Module *module);
 
 			template <typename T>
 			std::unique_ptr<NativeClass<T>> &bindClass(const std::string &classIdentifier)
@@ -50,18 +58,23 @@ namespace zenith
 				return nativeClasses[classIdentifier];
 			}
 
+			void bindFunction(const std::string &identifier, std::unique_ptr<NativeFunctionBase> nativeFunction)
+			{
+				nativeFunctions[identifier] = std::move(nativeFunction);
+			}
+
 			/* Bind a function with no parameters */
 			template <typename R>
 			void bindFunction(const std::string &identifier, R(*fnPtr)())
 			{
-				nativeFunctions[identifier] = std::make_unique<NativeFunction_NoParams<R>>(fnPtr);
+				nativeFunctions[identifier] = FunctionUtil::makeNativeFunction(fnPtr);
 			}
 
 			/* Bind a function with one parameter */
 			template <typename R, typename P1>
 			void bindFunction(const std::string &identifier, R(*fnPtr)(P1))
 			{
-				nativeFunctions[identifier] = std::make_unique<NativeFunction_OneParam<R, P1>>(fnPtr);
+				nativeFunctions[identifier] = FunctionUtil::makeNativeFunction(fnPtr);
 			}
 
 			template <typename T>

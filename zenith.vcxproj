@@ -122,7 +122,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
     <Link>
@@ -156,6 +156,8 @@
     <ClInclude Include="compiler\emit\bytecode.h" />
     <ClInclude Include="compiler\emit\emitter.h" />
     <ClInclude Include="compiler\errors.h" />
+    <ClInclude Include="compiler\extra\zen2cpp\handler.h" />
+    <ClInclude Include="compiler\extra\zen2cpp\zen2cpp.h" />
     <ClInclude Include="compiler\keywords.h" />
     <ClInclude Include="compiler\lexer.h" />
     <ClInclude Include="compiler\operators.h" />
@@ -166,11 +168,16 @@
     <ClInclude Include="enums.h" />
     <ClInclude Include="interop\class.h" />
     <ClInclude Include="interop\function.h" />
+    <ClInclude Include="runtime\any.h" />
     <ClInclude Include="runtime\bytereader.h" />
+    <ClInclude Include="runtime\experimental\function.h" />
+    <ClInclude Include="runtime\experimental\object.h" />
+    <ClInclude Include="runtime\experimental\vm_state.h" />
     <ClInclude Include="runtime\frame.h" />
     <ClInclude Include="runtime\evaluator.h" />
     <ClInclude Include="runtime\exception.h" />
     <ClInclude Include="runtime\module.h" />
+    <ClInclude Include="runtime\std\stdlibrary.h" />
     <ClInclude Include="runtime\value.h" />
     <ClInclude Include="runtime\vm.h" />
     <ClInclude Include="util\timer.h" />
@@ -181,14 +188,18 @@
     <ClCompile Include="compiler\emit\default_handler.cpp" />
     <ClCompile Include="compiler\emit\emitter.cpp" />
     <ClCompile Include="compiler\errors.cpp" />
+    <ClCompile Include="compiler\extra\zen2cpp\handler.cpp" />
+    <ClCompile Include="compiler\extra\zen2cpp\zen2cpp.cpp" />
     <ClCompile Include="compiler\lexer.cpp" />
     <ClCompile Include="compiler\parser.cpp" />
     <ClCompile Include="compiler\tokens.cpp" />
+    <ClCompile Include="runtime\experimental\function.cpp" />
+    <ClCompile Include="runtime\experimental\object.cpp" />
     <ClCompile Include="runtime\frame.cpp" />
     <ClCompile Include="runtime\evaluator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="runtime\module.cpp" />
-    <ClCompile Include="runtime\value.cpp" />
+    <ClCompile Include="runtime\std\stdlibrary.cpp" />
     <ClCompile Include="runtime\vm.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

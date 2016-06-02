@@ -1,5 +1,9 @@
 #include "vm.h"
 
+#include "experimental/vm_state.h"
+#include "experimental/function.h"
+#include "experimental/object.h"
+
 #include "../util/logger.h"
 #include "../util/timer.h"
 
@@ -9,15 +13,15 @@ namespace zenith
 
 	namespace runtime
 	{
-		VM::VM(ByteReader *byteReader)
+		VM::VM(VMState *state)
 		{
-			this->byteReader = byteReader;
+			this->state = state;
+			this->state->vm = this;
 
 			for (int i = 0; i < 4; i++)
 				objectStacks.push_back(ObjectStack());
 
 			blockLevel = -1;
-			readLevel = -1;
 		}
 
 		VM::~VM()
@@ -29,7 +33,7 @@ namespace zenith
 				leaveFrame(startLevel--);*/
 		}
 
-		void VM::instruction(Instruction ins, std::unique_ptr<Module> &module)
+		void VM::handleInstruction(Instruction ins, Module *module)
 		{
 			switch (ins)
 			{
@@ -43,10 +47,10 @@ namespace zenith
 			}
 			case Instruction::CMD_DEC_BLOCK_LEVEL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 				}
 
 				module->leaveFrame(blockLevel);
@@ -57,19 +61,19 @@ namespace zenith
 			}
 			case Instruction::CMD_INC_READ_LEVEL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
-					readLevel++;
-					debug_log("Increase read level to: %d", readLevel);
+					state->readLevel++;
+					debug_log("Increase read level to: %d", state->readLevel);
 				}
 				break;
 			}
 			case Instruction::CMD_DEC_READ_LEVEL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 				}
 				break;
 			}
@@ -77,29 +81,29 @@ namespace zenith
 			{
 				// which stack to use
 				int32_t whichStack;
-				if (readLevel == blockLevel)
-					byteReader->read(&whichStack);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&whichStack);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
 				// load string for variable name
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
 				// pop result into variable
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Pop into value '%s' from stack %d",
 						varNameStr.c_str(), whichStack);
@@ -112,12 +116,12 @@ namespace zenith
 						StackFrame &frame = module->getFrame(startLevel);
 						if (frame.hasLocal(varNameStr))
 						{
-							ValuePtr &valuePtr = frame.getLocal(varNameStr);
-							valuePtr = getObjectStack(whichStack).top();
+							auto &obj = frame.getLocal(varNameStr);
+							obj = getObjectStack(whichStack).top();
 							getObjectStack(whichStack).pop();
 
 							debug_log("Set variable '%s' to value: '%s'",
-								varNameStr.c_str(), valuePtr->str().c_str());
+								varNameStr.c_str(), obj->str().c_str());
 
 							found = true;
 							break;
@@ -134,16 +138,16 @@ namespace zenith
 			case Instruction::CMD_CREATE_BLOCK:
 			{
 				int32_t blockId;
-				byteReader->read(&blockId);
+				state->stream->read(&blockId);
 
 				int32_t blockType;
-				byteReader->read(&blockType);
+				state->stream->read(&blockType);
 
 				int32_t parentId;
-				byteReader->read(&parentId);
+				state->stream->read(&parentId);
 
 				uint64_t blockPos;
-				byteReader->read(&blockPos);
+				state->stream->read(&blockPos);
 
 				module->getSavedPositions()[blockId] = blockPos;
 
@@ -151,20 +155,60 @@ namespace zenith
 
 				break;
 			}
+			case Instruction::CMD_CREATE_FUNCTION:
+			{
+				// load string for variable name
+				int32_t varLen;
+				state->stream->read(&varLen);
+
+				char *varName;
+				std::string varNameStr;
+				if (state->readLevel == blockLevel)
+				{
+					varName = new char[varLen];
+					state->stream->read(varName, varLen);
+					varNameStr = std::string(varName);
+					delete[] varName;
+				}
+				else
+					state->stream->skip(varLen);
+
+				uint64_t blockPos;
+				if (state->readLevel == blockLevel)
+				{
+					state->stream->read(&blockPos);
+				}
+				else
+					state->stream->skip(sizeof(uint64_t));
+
+				if (state->readLevel == blockLevel)
+				{
+					// create function
+					if (globalFunctions.find(varNameStr) == globalFunctions.end())
+					{
+						auto fnPtr = std::make_shared<Function>(blockPos);
+						globalFunctions[varNameStr] = fnPtr;
+
+						debug_log("Created function: %s at position: %d", varNameStr.c_str(), blockPos);
+					}
+				}
+
+				break;
+			}
 			case Instruction::CMD_GO_TO_BLOCK:
 			{
 				int32_t blockId;
-				if (readLevel == blockLevel)
-					byteReader->read(&blockId);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&blockId);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					auto position = module->getSavedPositions()[blockId];
 					debug_log("Go to block: %d at position: %d", blockId, position);
 
-					byteReader->seek(position);
+					state->stream->seek(position);
 				}
 
 				break;
@@ -172,12 +216,12 @@ namespace zenith
 			case Instruction::CMD_GO_TO_IF_TRUE:
 			{
 				int32_t blockId;
-				if (readLevel == blockLevel)
-					byteReader->read(&blockId);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&blockId);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					auto lastResult = module->getFrame(blockLevel).getLastIfResult();
 					if (lastResult)
@@ -185,7 +229,7 @@ namespace zenith
 						auto position = module->getSavedPositions()[blockId];
 						debug_log("Go to block: %d at position: %d", blockId, position);
 
-						byteReader->seek(position);
+						state->stream->seek(position);
 					}
 				}
 
@@ -194,12 +238,12 @@ namespace zenith
 			case Instruction::CMD_GO_TO_IF_FALSE:
 			{
 				int32_t blockId;
-				if (readLevel == blockLevel)
-					byteReader->read(&blockId);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&blockId);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					auto lastResult = module->getFrame(blockLevel).getLastIfResult();
 					if (!lastResult)
@@ -207,7 +251,7 @@ namespace zenith
 						auto position = module->getSavedPositions()[blockId];
 						debug_log("Go to block: %d at position: %d", blockId, position);
 
-						byteReader->seek(position);
+						state->stream->seek(position);
 					}
 				}
 
@@ -215,9 +259,9 @@ namespace zenith
 			}
 			case Instruction::CMD_PUSH_FUNCTION_CHAIN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
-					auto pos = (std::streamoff)byteReader->position() + 8;
+					auto pos = (std::streamoff)state->stream->position() + 8;
 					module->pushFunctionChain(pos);
 
 					debug_log("Push position: %d", pos);
@@ -226,52 +270,52 @@ namespace zenith
 			}
 			case Instruction::CMD_POP_FUNCTION_CHAIN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
-					byteReader->seek(module->popFunctionChain());
+					state->stream->seek(module->popFunctionChain());
 
-					debug_log("Pop to position: %d", byteReader->position());
+					debug_log("Pop to position: %d", state->stream->position());
 				}
 				break;
 			}
 			case Instruction::CMD_CALL_NATIVE_FUNCTION:
 			{
 				int32_t blockId;
-				if (readLevel == blockLevel)
-					byteReader->read(&blockId);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&blockId);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
 				int32_t numArgs;
-				if (readLevel == blockLevel)
-					byteReader->read(&numArgs);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&numArgs);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
 				int32_t varLen;
-				byteReader->read(&varLen, sizeof(int32_t));
+				state->stream->read(&varLen, sizeof(int32_t));
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Call native function: %s", varNameStr.c_str());
 
 					if (callBindedFunction(varNameStr, numArgs))
 					{
-						ValuePtr val = getObjectStack(StackType::STACK_FUNCTION_CALLBACK).top();
+						auto obj = getObjectStack(StackType::STACK_FUNCTION_CALLBACK).top();
 						getObjectStack(StackType::STACK_FUNCTION_CALLBACK).pop();
-						module->getFrame(blockLevel).getEvaluator().loadVariable(val);
+						module->getFrame(blockLevel).getEvaluator().loadObject(obj);
 					}
 					else
 						Exception({ "Native function '" + varNameStr + "' not bound properly" }).display();
@@ -281,21 +325,21 @@ namespace zenith
 			case Instruction::CMD_CREATE_NATIVE_CLASS_INSTANCE:
 			{
 				int32_t classNameLen;
-				byteReader->read(&classNameLen);
+				state->stream->read(&classNameLen);
 
 				char *className;
 				std::string classNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					className = new char[classNameLen];
-					byteReader->read(className, classNameLen);
+					state->stream->read(className, classNameLen);
 					classNameStr = std::string(className);
 					delete[] className;
 				}
 				else
-					byteReader->skip(classNameLen);
+					state->stream->skip(classNameLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Create native class instance: %s", classNameStr.c_str());
 
@@ -306,31 +350,80 @@ namespace zenith
 			}
 			case Instruction::CMD_CALL_FUNCTION:
 			{
-				int32_t blockId;
-				if (readLevel == blockLevel)
-					byteReader->read(&blockId);
+				/*int32_t blockId;
+				if (state->readLevel == blockLevel)
+					state->stream->read(&blockId);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));*/
 
-				if (readLevel == blockLevel)
+				int32_t nameLen;
+				state->stream->read(&nameLen);
+
+				char *name;
+				std::string nameStr;
+				if (state->readLevel == blockLevel)
 				{
-					debug_log("Push position: %d", byteReader->position());
+					name = new char[nameLen];
+					state->stream->read(name, nameLen);
+					nameStr = std::string(name);
+					delete[] name;
+				}
+				else
+					state->stream->skip(nameLen);
+
+				if (state->readLevel == blockLevel)
+				{
+					debug_log("Calling function: %s", nameStr.c_str());
+
+					if (globalFunctions.find(nameStr) == globalFunctions.end())
+						throw std::runtime_error("Function not defined");
+
+					globalFunctions[nameStr]->invoke(state);
+
+					/*debug_log("Push position: %d", state->stream->position());
 					debug_log("Move to block: %d", blockId);
 
-					module->pushFunctionChain((std::streamoff)byteReader->position());
+					module->pushFunctionChain((std::streamoff)state->stream->position());
 
 					// move to block
-					readLevel++;
-					debug_log("Increase read level to: %d", readLevel);
+					state->readLevel++;
+					debug_log("Increase read level to: %d", state->readLevel);
 
-					byteReader->seek(module->getSavedPositions()[blockId]);
+					state->stream->seek(module->getSavedPositions()[blockId]);*/
+				}
+
+				break;
+			}
+			case Instruction::CMD_INVOKE_METHOD:
+			{
+				int32_t nameLen;
+				state->stream->read(&nameLen);
+
+				char *name;
+				std::string nameStr;
+				if (state->readLevel == blockLevel)
+				{
+					name = new char[nameLen];
+					state->stream->read(name, nameLen);
+					nameStr = std::string(name);
+					delete[] name;
+				}
+				else
+					state->stream->skip(nameLen);
+
+				if (state->readLevel == blockLevel)
+				{
+					debug_log("Calling method function: %s", nameStr.c_str());
+
+					auto object = module->getFrame(blockLevel).getEvaluator().getStack().top();
+					object->invokeMethod(state, nameStr);
 				}
 
 				break;
 			}
 			case Instruction::CMD_LEAVE_FUNCTION:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Leave function");
 
@@ -338,45 +431,45 @@ namespace zenith
 					blockLevel--;
 					debug_log("Decrease block level to: %d", blockLevel);
 
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 
-					byteReader->seek(module->popFunctionChain());
-					debug_log("Popping back to position: %d", byteReader->position());
+					state->stream->seek(module->popFunctionChain());
+					debug_log("Popping back to position: %d", state->stream->position());
 
-					ValuePtr val = getObjectStack(StackType::STACK_FUNCTION_CALLBACK).top();
+					auto object = getObjectStack(StackType::STACK_FUNCTION_CALLBACK).top();
 					getObjectStack(StackType::STACK_FUNCTION_CALLBACK).pop();
-					module->getFrame(blockLevel).getEvaluator().loadVariable(val);
+					module->getFrame(blockLevel).getEvaluator().loadObject(object);
 
 					debug_log("Loaded variable from stack to level: %d, Value: '%s'",
-						blockLevel, val->str().c_str());
+						blockLevel, object->str().c_str());
 				}
 				break;
 			}
 			case Instruction::CMD_CREATE_VAR:
 			{
 				int32_t varType;
-				if (readLevel == blockLevel)
-					byteReader->read(&varType);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&varType);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
-				if (blockLevel == readLevel)
+				if (blockLevel == state->readLevel)
 				{
 					debug_log("Creating variable: %s", varNameStr.c_str());
 					module->getFrame(blockLevel).createLocal(varNameStr);
@@ -386,16 +479,12 @@ namespace zenith
 			}
 			case Instruction::CMD_IF_STATEMENT:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					auto &frame = module->getFrame(blockLevel);
-					ValuePtr expr = frame.getEvaluator().getStack().top();
+					auto expr = frame.getEvaluator().getStack().top();
 
-					bool val;
-					if (expr != nullptr)
-						val = expr->getData<bool>();
-					else
-						val = false; // null values convert to false
+					bool val = (expr ? expr->cast<bool>() : false);
 
 					frame.getEvaluator().getStack().pop();
 
@@ -405,8 +494,8 @@ namespace zenith
 
 					if (val)
 					{
-						readLevel++;
-						debug_log("Increase read level to: %d", readLevel);
+						state->readLevel++;
+						debug_log("Increase read level to: %d", state->readLevel);
 					}
 				}
 
@@ -414,14 +503,14 @@ namespace zenith
 			}
 			case Instruction::CMD_ELSE_STATEMENT:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					bool lastResult = module->getFrame(blockLevel).getLastIfResult();
 
 					if (!lastResult)
 					{
-						readLevel++;
-						debug_log("Increase read level to: %d", readLevel);
+						state->readLevel++;
+						debug_log("Increase read level to: %d", state->readLevel);
 					}
 				}
 
@@ -429,7 +518,7 @@ namespace zenith
 			}
 			case Instruction::CMD_LEAVE_BLOCK:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Leave block");
 
@@ -437,32 +526,32 @@ namespace zenith
 					blockLevel--;
 					debug_log("Decrease block level to: %d", blockLevel);
 
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 				}
 
 				break;
 			}
 			case Instruction::CMD_LEAVE_IF_STATEMENT: // deprecated
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Leave if statement");
 
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 				}
 
 				break;
 			}
 			case Instruction::CMD_LEAVE_ELSE_STATEMENT: // deprecated
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Leave else statement");
 
-					readLevel--;
-					debug_log("Decrease read level to: %d", readLevel);
+					state->readLevel--;
+					debug_log("Decrease read level to: %d", state->readLevel);
 				}
 
 				break;
@@ -470,12 +559,12 @@ namespace zenith
 			case Instruction::CMD_CLEAR_VAR:
 			{
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					char *varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					std::string varNameStr(varName);
 					delete[] varName;
 
@@ -489,8 +578,8 @@ namespace zenith
 						auto &frame = module->getFrame(blockLevel);
 						if (frame.hasLocal(varNameStr))
 						{
-							ValuePtr &valuePtr = frame.getLocal(varNameStr);
-							frame.clearLocal(valuePtr);
+							auto &obj = frame.getLocal(varNameStr);
+							frame.clearLocal(obj);
 							found = true;
 							break;
 						}
@@ -504,7 +593,7 @@ namespace zenith
 				else
 				{
 					// skip ahead
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 				}
 
 				break;
@@ -512,21 +601,21 @@ namespace zenith
 			case Instruction::CMD_DELETE_VAR:
 			{
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Delete var: %s", varNameStr.c_str());
 					module->getFrame(blockLevel).deleteLocal(varNameStr);
@@ -537,16 +626,16 @@ namespace zenith
 			case Instruction::CMD_LOOP_BREAK:
 			{
 				int32_t levelsToSkip;
-				if (readLevel == blockLevel)
-					byteReader->read(&levelsToSkip);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&levelsToSkip);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Loop break");
 					module->getFrame(blockLevel - levelsToSkip).setLastIfResult(false);
-					readLevel -= levelsToSkip;
+					state->readLevel -= levelsToSkip;
 				}
 
 				break;
@@ -554,16 +643,16 @@ namespace zenith
 			case Instruction::CMD_LOOP_CONTINUE:
 			{
 				int32_t levelsToSkip;
-				if (readLevel == blockLevel)
-					byteReader->read(&levelsToSkip);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&levelsToSkip);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Loop continue");
 					module->getFrame(blockLevel - levelsToSkip).setLastIfResult(true);
-					readLevel -= levelsToSkip;
+					state->readLevel -= levelsToSkip;
 				}
 
 				break;
@@ -571,12 +660,12 @@ namespace zenith
 			case Instruction::CMD_LOAD_INTEGER:
 			{
 				long value;
-				if (readLevel == blockLevel)
-					byteReader->read(&value);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&value);
 				else
-					byteReader->skip(sizeof(long));
+					state->stream->skip(sizeof(long));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Load integer: %d", value);
 					module->getFrame(blockLevel).getEvaluator().loadInteger(value);
@@ -587,12 +676,12 @@ namespace zenith
 			case Instruction::CMD_LOAD_FLOAT:
 			{
 				double value;
-				if (readLevel == blockLevel)
-					byteReader->read(&value);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&value);
 				else
-					byteReader->skip(sizeof(double));
+					state->stream->skip(sizeof(double));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Load float: %f", value);
 					module->getFrame(blockLevel).getEvaluator().loadFloat(value);
@@ -603,21 +692,21 @@ namespace zenith
 			case Instruction::CMD_LOAD_STRING:
 			{
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Load string: %s", varNameStr.c_str());
 					module->getFrame(blockLevel).getEvaluator().loadString(varNameStr);
@@ -627,7 +716,7 @@ namespace zenith
 			}
 			case Instruction::CMD_LOAD_NULL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Load null");
 					module->getFrame(blockLevel).getEvaluator().loadNull();
@@ -637,21 +726,21 @@ namespace zenith
 			case Instruction::CMD_LOAD_VARIABLE:
 			{
 				int32_t varLen;
-				byteReader->read(&varLen);
+				state->stream->read(&varLen);
 
 				char *varName;
 				std::string varNameStr;
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					varName = new char[varLen];
-					byteReader->read(varName, varLen);
+					state->stream->read(varName, varLen);
 					varNameStr = std::string(varName);
 					delete[] varName;
 				}
 				else
-					byteReader->skip(varLen);
+					state->stream->skip(varLen);
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Loading variable: '%s'", varNameStr.c_str());
 
@@ -664,11 +753,11 @@ namespace zenith
 						auto &frame = module->getFrame(startLevel);
 						if (frame.hasLocal(varNameStr))
 						{
-							ValuePtr &valuePtr = frame.getLocal(varNameStr);
-							module->getFrame(blockLevel).getEvaluator().loadVariable(valuePtr);
+							auto &obj = frame.getLocal(varNameStr);
+							module->getFrame(blockLevel).getEvaluator().loadObject(obj);
 
 							debug_log("Loaded variable: '%s', Value: '%s', From level: %d, To level: %d",
-								varNameStr.c_str(), valuePtr->str().c_str(), startLevel, blockLevel);
+								varNameStr.c_str(), obj->str().c_str(), startLevel, blockLevel);
 
 							found = true;
 							break;
@@ -686,12 +775,12 @@ namespace zenith
 			case Instruction::CMD_OP_PUSH:
 			{
 				int32_t whichStack;
-				if (readLevel == blockLevel)
-					byteReader->read(&whichStack);
+				if (state->readLevel == blockLevel)
+					state->stream->read(&whichStack);
 				else
-					byteReader->skip(sizeof(int32_t));
+					state->stream->skip(sizeof(int32_t));
 
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Push result from level %d to object stack %d",
 						blockLevel, whichStack);
@@ -703,7 +792,7 @@ namespace zenith
 			}
 			case Instruction::CMD_OP_CLEAR:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Clear expression");
 					module->getFrame(blockLevel).getEvaluator().clear();
@@ -713,164 +802,164 @@ namespace zenith
 			}
 			case Instruction::CMD_OP_UNARY_NEG:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Unary -");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::unaryMinus);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::u_minus);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_UNARY_POS:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 					debug_log("Unary +");
 
 				break;
 			}
 			case Instruction::CMD_OP_UNARY_NOT:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Unary !");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::unaryNot);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::lognot);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_ADD:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary +");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::add);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::add);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_SUB:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary -");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::subtract);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::sub);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_MUL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary *");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::multiply);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::mul);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_DIV:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary /");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::divide);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::div);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_MOD:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary %");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::modulus);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::mod);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_AND:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary &&");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::logicalAnd);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::logand);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_OR:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary ||");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::logicalOr);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::logor);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_EQL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary ==");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::isEqualTo);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::eql);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_NEQL:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary !=");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::notEqualTo);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::not_eql);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_LT:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary <");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::lessThan);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::less);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_GT:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary >");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::greaterThan);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::greater);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_LTE:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary <=");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::lessOrEqualTo);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::less_eql);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_GTE:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary >=");
-					module->getFrame(blockLevel).getEvaluator().operation(&Value::greaterOrEqualTo);
+					module->getFrame(blockLevel).getEvaluator().operation(&Object::greater_eql);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_ASSIGN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary =");
 					module->getFrame(blockLevel).getEvaluator().assign();
@@ -880,48 +969,48 @@ namespace zenith
 			}
 			case Instruction::CMD_OP_ADD_ASSIGN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary +=");
-					module->getFrame(blockLevel).getEvaluator().assign(&Value::add);
+					module->getFrame(blockLevel).getEvaluator().assign(&Object::add);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_SUB_ASSIGN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary -=");
-					module->getFrame(blockLevel).getEvaluator().assign(&Value::subtract);
+					module->getFrame(blockLevel).getEvaluator().assign(&Object::sub);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_MUL_ASSIGN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary *=");
-					module->getFrame(blockLevel).getEvaluator().assign(&Value::multiply);
+					module->getFrame(blockLevel).getEvaluator().assign(&Object::mul);
 				}
 
 				break;
 			}
 			case Instruction::CMD_OP_DIV_ASSIGN:
 			{
-				if (readLevel == blockLevel)
+				if (state->readLevel == blockLevel)
 				{
 					debug_log("Binary /=");
-					module->getFrame(blockLevel).getEvaluator().assign(&Value::divide);
+					module->getFrame(blockLevel).getEvaluator().assign(&Object::div);
 				}
 
 				break;
 			}
 			default:
-				auto lastPos = (((unsigned long)byteReader->position()) - sizeof(Instruction));
+				auto lastPos = (((unsigned long)state->stream->position()) - sizeof(Instruction));
 				printf("Unrecognized instruction '%d' at position: %d\n", (int)ins, lastPos);
-				byteReader = nullptr;
+				state->stream = nullptr;
 				return;
 			}
 		}
@@ -931,15 +1020,18 @@ namespace zenith
 			Timer timer;
 			timer.start();
 
-			auto module = std::make_unique<Module>("main");
+			auto *module = new Module("main");
+			state->module = module;
 
-			while (byteReader != nullptr &&
-				(byteReader->position() < byteReader->max()))
+			while (state->stream != nullptr &&
+				(state->stream->position() < state->stream->max()))
 			{
 				int32_t ins;
-				byteReader->read(&ins);
-				instruction((Instruction)ins, module);
+				state->stream->read(&ins);
+				handleInstruction((Instruction)ins, module);
 			}
+
+			delete module;
 
 			std::cout << "Execution completed in " << timer.elapsedTime() << "s\n";
 		}

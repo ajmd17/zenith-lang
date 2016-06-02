@@ -204,7 +204,7 @@ namespace zenith
 		{
 			Value result;
 
-			if (!isNull())
+			if (this != nullptr && !isNull())
 			{
 				if (other->isNull())
 					this->setData(false);
@@ -226,10 +226,9 @@ namespace zenith
 				else
 					BinaryOperatorException({ prettyType(), other->prettyType() }).display();
 			}
-			else if (other->isNull())
+			else if (other == nullptr || other->isNull())
 				setData(true);
-
-			else if (!other->isNull())
+			else if (!(other == nullptr || other->isNull()))
 				BinaryOperatorException({ prettyType(), other->prettyType() }).display();
 
 			return *this;
@@ -239,21 +238,31 @@ namespace zenith
 		{
 			Value result;
 
-			if (this->isNumber() && other->isNumber())
+			if (this != nullptr && !isNull())
 			{
-				double dbl1 = this->getData<double>();
-				double dbl2 = other->getData<double>();
+				if (other == nullptr || other->isNull())
+					this->setData(true);
 
-				this->setData(dbl1 != dbl2);
-			}
-			else if (this->isString() && other->isString())
-			{
-				std::string str1 = this->getData<std::string>();
-				std::string str2 = other->getData<std::string>();
+				else if (this->isNumber() && other->isNumber())
+				{
+					double dbl1 = this->getData<double>();
+					double dbl2 = other->getData<double>();
 
-				this->setData(str1 != str2);
+					this->setData(dbl1 != dbl2);
+				}
+				else if (this->isString() && other->isString())
+				{
+					std::string str1 = this->getData<std::string>();
+					std::string str2 = other->getData<std::string>();
+
+					this->setData(str1 != str2);
+				}
+				else
+					BinaryOperatorException({ prettyType(), other->prettyType() }).display();
 			}
-			else
+			else if (other == nullptr || other->isNull())
+				setData(false);
+			else if (!(other == nullptr || other->isNull()))
 				BinaryOperatorException({ prettyType(), other->prettyType() }).display();
 
 			return *this;
@@ -371,8 +380,7 @@ namespace zenith
 			}
 			else if (this->isString())
 			{
-				const std::string myType = this->getType()->name();
-				Exception({ "Operator not valid on this type: (" + myType + ")" }).display();
+				Exception({ "Operator not valid on this type: (" + prettyType() + ")" }).display();
 			}
 			else
 			{
@@ -394,8 +402,7 @@ namespace zenith
 			}
 			else
 			{
-				const std::string myType = this->getType()->name();
-				Exception({ "Operator not valid on this type: (" + myType + ")" }).display();
+				Exception({ "Operator not valid on this type: (" + prettyType() + ")" }).display();
 			}
 
 			return *this;
@@ -413,8 +420,7 @@ namespace zenith
 			}
 			else
 			{
-				const std::string myType = this->getType()->name();
-				Exception({ "Operator not valid on this type: (" + myType + ")" }).display();
+				Exception({ "Operator not valid on this type: (" + prettyType() + ")" }).display();
 			}
 
 			return *this;
@@ -432,8 +438,7 @@ namespace zenith
 			}
 			else
 			{
-				const std::string myType = this->getType()->name();
-				Exception({ "Operator not valid on this type: (" + myType + ")" }).display();
+				Exception({ "Operator not valid on this type: (" + prettyType() + ")" }).display();
 			}
 
 			return *this;

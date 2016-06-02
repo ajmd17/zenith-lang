@@ -1,14 +1,15 @@
 #ifndef __ZENITH_RUNTIME_VALUE_H__
 #define __ZENITH_RUNTIME_VALUE_H__
 
-#include <string>
+/*#include <string>
 #include <memory>
 #include <iostream>
 #include <type_traits>
 #include <map>
 using std::cout;
 
-#include <boost/any.hpp>
+//#include <boost/any.hpp>
+#include "any.h"
 
 #include "../enums.h"
 
@@ -30,170 +31,112 @@ namespace zenith
 			// for numbers
 			template <typename T>
 			typename std::enable_if<std::is_integral<T>::value || std::is_floating_point<T>::value, bool>::type
-				static changeType(boost::any &inVal)
+				static changeType(Any &inVal)
 			{
-				const std::type_info *thisType = &inVal.type();
-				const std::type_info *otherType = &typeid(T);
-
-				bool equalTypes = (*otherType) == (*thisType);
-
-				if (equalTypes)
+				if (inVal.type() == typeid(T))
 					return true;
-				else if ((*thisType) == typeid(double))
-				{
-					const double v = boost::any_cast<double>(inVal);
 
-					// reassign type
-					inVal = static_cast<T>(v);
+				else if (inVal.compatible<double>())
+				{
+					const double v = inVal.value<double>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(long double))
+				else if (inVal.compatible<long double>())
 				{
-					const long double v = boost::any_cast<long double>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const long double v = inVal.value<long double>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(float))
+				else if (inVal.compatible<float>())
 				{
-					const float v = boost::any_cast<float>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const float v = inVal.value<float>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(bool))
+				else if (inVal.compatible<bool>())
 				{
-					const bool v = boost::any_cast<bool>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const bool v = inVal.value<bool>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(int))
+				else if (inVal.compatible<int>())
 				{
-					const int v = boost::any_cast<int>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const int v = inVal.value<int>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(unsigned int))
+				else if (inVal.compatible<unsigned int>())
 				{
-					const unsigned int v = boost::any_cast<unsigned int>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const unsigned int v = inVal.value<unsigned int>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(short))
+				else if (inVal.compatible<short>())
 				{
-					const short v = boost::any_cast<short>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const short v = inVal.value<short>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(unsigned short))
+				else if (inVal.compatible<unsigned short>())
 				{
-					const unsigned short v = boost::any_cast<unsigned short>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const unsigned short v = inVal.value<unsigned short>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(char))
+				else if (inVal.compatible<char>())
 				{
-					const char v = boost::any_cast<char>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const char v = inVal.value<char>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(unsigned char))
+				else if (inVal.compatible<unsigned char>())
 				{
-					const unsigned char v = boost::any_cast<unsigned char>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const unsigned char v = inVal.value<unsigned char>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(long))
+				else if (inVal.compatible<long>())
 				{
-					const long v = boost::any_cast<long>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const long v = inVal.value<long>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(unsigned long))
+				else if (inVal.compatible<unsigned long>())
 				{
-					const unsigned long v = boost::any_cast<unsigned long>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const unsigned long v = inVal.value<unsigned long>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(long long))
+				else if (inVal.compatible<long long>())
 				{
-					const long long v = boost::any_cast<long long>(inVal);
-
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const long long v = inVal.value<long long>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
-				else if ((*thisType) == typeid(unsigned long long))
+				else if (inVal.compatible<unsigned long long>())
 				{
-					const unsigned long long v = boost::any_cast<unsigned long long>(inVal);
-					// reassign type
-					inVal = static_cast<T>(v);
-
+					const unsigned long long v = inVal.value<unsigned long long>();
+					inVal.assign(static_cast<T>(v));
 					return true;
 				}
 				else
-				{
 					return false;
-				}
 			}
 
 			// for objects
 			template <typename T>
 			typename std::enable_if<!(std::is_integral<T>::value || std::is_floating_point<T>::value), bool>::type
-				static changeType(boost::any &inVal)
+				static changeType(Any &inVal)
 			{
-				const std::type_info *thisType = &inVal.type();
-				const std::type_info *otherType = &typeid(T);
-
-				bool equalTypes = (*otherType) == (*thisType);
-
-				if (equalTypes)
-				{
-					return true;
-				}
-				else
-				{
-					return false;
-				}
+				return inVal.type() == typeid(T);
 			}
 		};
 
 		class Value
 		{
 		protected:
-			boost::any value;
+			Any any;
 			bool isUndefinedValue;
 		private:
 			bool isNativeObject;
@@ -206,7 +149,7 @@ namespace zenith
 		public:
 			Value()
 			{
-				this->value = 0;
+				any.assign(nullptr);
 				this->isUndefinedValue = true;
 				this->isNativeObject = false;
 				this->isPointerValue = false;
@@ -233,20 +176,12 @@ namespace zenith
 					cout << "Error: cannot change const value\n";
 					throw std::runtime_error("Const changed");
 				}
-
-				// if the value is a number or string, we shouldn't assign it as a reference by default.
-				// however, it it is an object, it we should use swap()
-				bool shouldAssignReference = other.isObject();
-
-				if (shouldAssignReference)
-					this->value.swap(other.value);
-				else
-					this->value = other.value;
+				
+				this->any = other.any;
 
 				this->isNativeObject = other.isNative();
 				this->isUndefinedValue = other.isUndefined();
 				this->isPointerValue = other.isPointer();
-				this->isConstValue = other.isConst();
 				this->isNumberValue = other.isNumber();
 				this->isStringValue = other.isString();
 				this->isObjectValue = other.isObject();
@@ -261,32 +196,29 @@ namespace zenith
 					throw std::runtime_error("Value was null");
 				}
 
+				#if 0
 				if (this->isPointerValue)
 				{
 					if (!std::is_pointer<T>::value)
 					{
 						// attempt to convert the non-pointer version of this object is compatible with the type requested
-						auto t = boost::any_cast<std::remove_reference<T>::type*>(value);
+						auto *t = value.value<T*>();
 						return *t;
 					}
 				}
+				#endif
 
-				const std::type_info *thisType = &this->value.type();
+				const std::type_info *thisType = &this->any.type();
 				const std::type_info *otherType = &typeid(T);
 
-				if (!ValueUtil::changeType<std::remove_reference<T>::type>(this->value))
+				if (!ValueUtil::changeType<std::remove_reference<T>::type>(this->any))
 				{
 					cout << "No conversion found between type: (" << thisType->name() << ") and (" << otherType->name() << ")\n";
 					throw std::runtime_error("No conversion found");
 				}
 
-				auto *t = boost::any_cast<std::remove_reference<T>::type>(&value);
-				return *t;
-			}
-
-			boost::any &getData()
-			{
-				return this->value;
+				auto &t = any.value<T&>();
+				return t;
 			}
 
 			template <class T>
@@ -300,14 +232,20 @@ namespace zenith
 					throw std::runtime_error("Const changed");
 				}
 
-				this->value = value;
+				this->any.assign(value);
 				this->isNativeObject = is_native;
 				this->isUndefinedValue = false;
 				this->isPointerValue = std::is_pointer<T>::value;
-				this->isConstValue = std::is_const<T>::value;
-				this->isNumberValue = std::is_arithmetic<std::remove_reference<std::remove_pointer<T>::type>::type>::value;
-				this->isStringValue = std::is_same<std::remove_const<std::remove_reference<std::remove_pointer<T>::type>::type>::type, std::string>::value;
-				this->isObjectValue = !isStringValue && std::is_class<std::remove_reference<std::remove_pointer<T>::type>::type>::value;
+				this->isNumberValue = std::is_arithmetic<
+					std::remove_reference<
+					std::remove_pointer<T>::type>::type>::value;
+				this->isStringValue = std::is_same<
+					std::remove_const<
+					std::remove_reference<
+					std::remove_pointer<T>::type>::type>::type, std::string>::value;
+				this->isObjectValue = !isStringValue && std::is_class<
+					std::remove_reference<
+					std::remove_pointer<T>::type>::type>::value;
 			}
 
 			void setUndefined(bool b) { isUndefinedValue = b; }
@@ -315,7 +253,7 @@ namespace zenith
 
 			const bool isNull() const
 			{
-				return *getType() == typeid(nullptr);
+				return any.is_null();
 			}
 
 			const bool isUndefined() const
@@ -385,13 +323,13 @@ namespace zenith
 					return getData<std::string>();
 				else if (isNumberValue)
 				{
-					if (value.type() == typeid(double))
+					if (any.type() == typeid(double))
 						return std::to_string(getData<double>());
-					else if (value.type() == typeid(long))
+					else if (any.type() == typeid(long))
 						return std::to_string(getData<long>());
-					else if (value.type() == typeid(unsigned long))
+					else if (any.type() == typeid(unsigned long))
 						return std::to_string(getData<unsigned long>());
-					else if (value.type() == typeid(unsigned int))
+					else if (any.type() == typeid(unsigned int))
 						return std::to_string(getData<unsigned int>());
 					else
 						return std::to_string(getData<int>());
@@ -406,8 +344,6 @@ namespace zenith
 
 				if (this == nullptr || isNull())
 					return "null";
-
-
 				if (isConstValue)
 					result += "const ";
 
@@ -417,17 +353,15 @@ namespace zenith
 					result += "string";
 				else if (isNumberValue)
 					result += "number";
-				else if (isObjectValue)
-					result += "object " + *getType()->name();
 				else
-					result += *getType()->name();
+					result += type().name();
 
 				return result;
 			}
 
-			const std::type_info *getType() const
+			const std::type_info &type() const
 			{
-				return &value.type();
+				return any.type();
 			}
 		};
 
@@ -459,6 +393,6 @@ namespace zenith
 		typedef std::map<std::string, VarInfo> VarMap;
 		typedef std::pair<std::string, VarInfo> VarNameInfoPair;
 	}
-}
+}*/
 
 #endif

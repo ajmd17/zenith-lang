@@ -33,11 +33,15 @@ namespace zenith
 			UNDECLARED_IDENTIFIER,
 			EXPECTED_IDENTIFIER,
 			AMBIGUOUS_IDENTIFIER,
+			INVALID_CONSTRUCTOR,
+			UNKNOWN_CLASS_TYPE,
 			EXPECTED_TOKEN,
 			UNEXPECTED_END_OF_FILE,
 			EXPECTED_MODULE_DECLARATION,
 			MODULE_NOT_FOUND,
-			IMPORT_OUTSIDE_GLOBAL
+			MODULE_ALREADY_DEFINED,
+			IMPORT_OUTSIDE_GLOBAL,
+			SELF_NOT_DEFINED
 		};
 
 		struct Error
@@ -86,11 +90,7 @@ namespace zenith
 			}
 
 			void display();
-
-			bool operator<(const Error &other)
-			{
-				return location.line < other.location.line;
-			}
+			bool operator<(const Error &other);
 		};
 	}
 }

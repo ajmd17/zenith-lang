@@ -1,7 +1,7 @@
 ﻿  main.cpp
   Generating code
-  1 of 5861 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    38 functions had inline decision re-evaluated but remain unchanged
+  2 of 7314 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    79 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   zenith.vcxproj -> C:\Users\User\Documents\Visual Studio 2015\Projects\zenith\Release\zenith.exe

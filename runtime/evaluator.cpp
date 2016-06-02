@@ -1,17 +1,20 @@
 #include "evaluator.h"
 
+#include "exception.h"
+#include "experimental/object.h"
+
 namespace zenith
 {
 	namespace runtime
 	{
-		void Evaluator::push(std::stack<ValuePtr> &objectStack)
+		void Evaluator::push(ExpressionStack &whereTo)
 		{
 			if (exprStack.size() == 0)
 				throw std::runtime_error("Empty stack");
 
-			ValuePtr &res = exprStack.top();
-			objectStack.push(res);
-			this->clear();
+			auto &res = exprStack.top();
+			whereTo.push(res);
+			clear();
 		}
 
 		void Evaluator::clear()
@@ -21,66 +24,70 @@ namespace zenith
 
 		void Evaluator::loadInteger(long value)
 		{
-			auto val = std::make_shared<Value>();
-			val->setData(value);
+			auto val = std::make_shared<Object>();
+			val->assign(value);
+			val->setConst(true);
 			exprStack.push(val);
 		}
 
 		void Evaluator::loadFloat(double value)
 		{
-			auto val = std::make_shared<Value>();
-			val->setData(value);
+			auto val = std::make_shared<Object>();
+			val->assign(value);
+			val->setConst(true);
 			exprStack.push(val);
 		}
 
 		void Evaluator::loadString(const std::string &value)
 		{
-			auto val = std::make_shared<Value>();
-			val->setData(value);
+			auto val = std::make_shared<Object>();
+			val->assign(value);
+			val->setConst(true);
 			exprStack.push(val);
 		}
 
-		void Evaluator::loadVariable(ValuePtr &value)
+		void Evaluator::loadObject(ObjectPtr &object)
 		{
-			exprStack.push(value);
+			exprStack.push(object);
 		}
 
 		void Evaluator::loadNull()
 		{
-			exprStack.push(ValuePtr(nullptr));
+			exprStack.push(ObjectPtr(nullptr));
 		}
 
 		void Evaluator::assign()
 		{
-			ValuePtr right = exprStack.top();
+			auto right = exprStack.top();
 			exprStack.pop();
 
-			// maybe an assign() function for the value
-			// could be used here. that way natively binded
-			// objects could be assigned, instead of 
-			// just being overwritten by the right value.
 			if (!right)
 			{
-				ValuePtr &left = exprStack.top();
-				left->setData(nullptr);
+				auto &left = exprStack.top();
+				left->assign(nullptr);
 			}
 			else
 			{
-				ValuePtr left = exprStack.top();
+				auto left = exprStack.top();
 				exprStack.pop();
 
-				left->set(*right.get());
+				NullValueUsedException().display_if(left == nullptr);
+				ConstValueChangedException().display_if(left->isConst());
+
+				Object::assignCopy(left, right);
 				exprStack.push(left);
 			}
-
 		}
 
 		void Evaluator::assign(BinaryOp op)
 		{
-			ValuePtr right = exprStack.top();
+			auto right = exprStack.top();
 			exprStack.pop();
-			ValuePtr left = exprStack.top();
+			auto left = exprStack.top();
 			exprStack.pop();
+
+			NullValueUsedException().display_if(left == nullptr);
+			ConstValueChangedException().display_if(left->isConst());
 
 			((*left.get()).*op)(right.get());
 
@@ -89,13 +96,13 @@ namespace zenith
 
 		void Evaluator::operation(BinaryOp op)
 		{
-			ValuePtr right = exprStack.top();
+			auto right = exprStack.top();
 			exprStack.pop();
-			ValuePtr left = exprStack.top();
+			auto left = exprStack.top();
 			exprStack.pop();
 
-			auto result = std::make_shared<Value>();
-			result->set(*left.get());
+			auto result = std::make_shared<Object>();
+			Object::assignCopy(result, left);
 			((*result.get()).*op)(right.get());
 
 			exprStack.push(result);
@@ -103,11 +110,11 @@ namespace zenith
 
 		void Evaluator::operation(UnaryOp op)
 		{
-			ValuePtr top = exprStack.top();
+			auto top = exprStack.top();
 			exprStack.pop();
 
-			auto result = std::make_shared<Value>();
-			result->set(*top.get());
+			auto result = std::make_shared<Object>();
+			Object::assignCopy(result, top);
 			((*result.get()).*op)();
 
 			exprStack.push(result);

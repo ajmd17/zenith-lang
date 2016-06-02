@@ -32,8 +32,11 @@ namespace zenith
 			AST_TRUE,
 			AST_FALSE,
 			AST_NULL,
+			AST_SELF,
+			AST_NEW,
 			AST_FUNCTION_DEFINITION,
 			AST_FUNCTION_CALL,
+			AST_CLASS,
 			AST_IF_STATEMENT,
 			AST_RETURN_STATEMENT,
 			AST_FOR_LOOP
@@ -57,8 +60,11 @@ namespace zenith
 		struct TrueAst;
 		struct FalseAst;
 		struct NullAst;
+		struct SelfAst;
+		struct NewAst;
 		struct FunctionDefinitionAst;
 		struct FunctionCallAst;
+		struct ClassAst;
 		struct IfStatementAst;
 		struct ReturnStatementAst;
 		struct ForLoopAst;
@@ -86,8 +92,11 @@ namespace zenith
 			virtual void accept(TrueAst *node) = 0;
 			virtual void accept(FalseAst *node) = 0;
 			virtual void accept(NullAst *node) = 0;
+			virtual void accept(SelfAst *node) = 0;
+			virtual void accept(NewAst *node) = 0;
 			virtual void accept(FunctionDefinitionAst *node) = 0;
 			virtual void accept(FunctionCallAst *node) = 0;
+			virtual void accept(ClassAst *node) = 0;
 			virtual void accept(IfStatementAst *node) = 0;
 			virtual void accept(ReturnStatementAst *node) = 0;
 			virtual void accept(ForLoopAst *node) = 0;
@@ -109,6 +118,7 @@ namespace zenith
 
 		public:
 			AstNode *module = nullptr;
+			std::pair<std::string, ClassAst*> self = {"", nullptr};
 
 			SourceLocation location;
 			AstNodeType nodeType;
@@ -391,17 +401,20 @@ namespace zenith
 
 		struct MemberAccessAst : public AstNode
 		{
-			std::string identifier;
-			std::unique_ptr<AstNode> next;
+			std::string leftStr;
+			std::unique_ptr<AstNode> left;
+			std::unique_ptr<AstNode> right;
 
 			MemberAccessAst(SourceLocation location, 
 				AstNode *module,
-				const std::string &identifier,
-				std::unique_ptr<AstNode> next)
+				const std::string &leftStr,
+				std::unique_ptr<AstNode> left,
+				std::unique_ptr<AstNode> right)
 				: AstNode(location, module, AST_MEMBER_ACCESS)
 			{
-				this->identifier = identifier;
-				this->next = std::move(next);
+				this->leftStr = leftStr;
+				this->left = std::move(left);
+				this->right = std::move(right);
 			}
 
 			std::string str()
@@ -411,13 +424,16 @@ namespace zenith
 
 				indentLevel++;
 				result += "\n";
-				result += tabIndent(indentLevel, identifier);
-				result += "\n";
-				if (next != nullptr)
-					result += next->str();
+				if (left != nullptr)
+					result += left->str();
 				else
 					result += tabIndent(indentLevel, "(null)");
-				indentLevel--;
+
+				result += "\n";
+				if (right != nullptr)
+					result += right->str();
+				else
+					result += tabIndent(indentLevel, "(null)");
 
 				return result;
 			}
@@ -426,13 +442,16 @@ namespace zenith
 		struct VariableDeclarationAst : public AstNode
 		{
 			std::string name;
+			std::unique_ptr<AstNode> assignment;
 
-			VariableDeclarationAst(SourceLocation location, 
-				AstNode *module, 
-				const std::string &name)
+			VariableDeclarationAst(SourceLocation location,
+				AstNode *module,
+				const std::string &name,
+				std::unique_ptr<AstNode> assignment)
 				: AstNode(location, module, AST_VARIABLE_DECLARATION)
 			{
 				this->name = name;
+				this->assignment = std::move(assignment);
 			}
 
 			std::string str()
@@ -443,6 +462,10 @@ namespace zenith
 				indentLevel++;
 				result += "\n";
 				result += tabIndent(indentLevel, name);
+				result += "\n";
+				result += assignment != nullptr ? 
+					assignment->str() : 
+					tabIndent(indentLevel, "(null)");
 				indentLevel--;
 
 				return result;
@@ -579,7 +602,10 @@ namespace zenith
 			std::string str()
 			{
 				std::string result;
+				indentLevel++;
+				result += "\n";
 				result += tabIndent(indentLevel, "False");
+				indentLevel--;
 
 				return result;
 			}
@@ -595,7 +621,56 @@ namespace zenith
 			std::string str()
 			{
 				std::string result;
+				indentLevel++;
+				result += "\n";
 				result += tabIndent(indentLevel, "Null");
+				indentLevel--;
+
+				return result;
+			}
+		};
+
+		struct SelfAst : public AstNode
+		{
+			SelfAst(SourceLocation location, AstNode *module)
+				: AstNode(location, module, AST_SELF)
+			{
+			}
+
+			std::string str()
+			{
+				std::string result;
+				result += "\n";
+				result += tabIndent(indentLevel, "Self");
+
+				return result;
+			}
+		};
+
+		struct NewAst : public AstNode
+		{
+			std::string identifier;
+			std::unique_ptr<AstNode> constructorAst;
+
+			NewAst(SourceLocation location,
+				AstNode *module,
+				const std::string &identifier, // the variable it will go into
+				std::unique_ptr<AstNode> constructorAst)
+				: AstNode(location, module, AST_NEW)
+			{
+				this->identifier = identifier;
+				this->constructorAst = std::move(constructorAst);
+			}
+
+			std::string str()
+			{
+				std::string result;
+				result += tabIndent(indentLevel, "New -> " + identifier);
+
+				indentLevel++;
+				result += "\n";
+				result += constructorAst->str();
+				indentLevel--;
 
 				return result;
 			}
@@ -682,6 +757,38 @@ namespace zenith
 			}
 		};
 
+		struct ClassAst : public AstNode
+		{
+			std::string name;
+			std::vector<std::unique_ptr<AstNode>> dataMembers;
+
+			ClassAst(SourceLocation location,
+				AstNode *module,
+				const std::string &name,
+				std::vector<std::unique_ptr<AstNode>> dataMembers)
+				: AstNode(location, module, AST_CLASS)
+			{
+				this->name = name;
+				this->dataMembers = std::move(dataMembers);
+			}
+
+			std::string str()
+			{
+				std::string result;
+				result += tabIndent(indentLevel, "Class (" + name + ")");
+
+				indentLevel++;
+				for (auto &&mem : dataMembers)
+				{
+					result += "\n";
+					result += mem->str();
+				}
+				indentLevel--;
+
+				return result;
+			}
+		};
+
 		struct IfStatementAst : public AstNode
 		{
 			std::unique_ptr<AstNode> cond_expr, block, elseStatement;
@@ -758,24 +865,20 @@ namespace zenith
 			std::unique_ptr<AstNode> init_expr;
 			std::unique_ptr<AstNode> cond_expr;
 			std::unique_ptr<AstNode> inc_expr;
-
-			std::vector<std::unique_ptr<AstNode>> statements;
+			std::unique_ptr<AstNode> block;
 
 			ForLoopAst(SourceLocation location, 
 				AstNode *module,
 				std::unique_ptr<AstNode> init_expr,
 				std::unique_ptr<AstNode> cond_expr,
-				std::unique_ptr<AstNode> inc_expr)
+				std::unique_ptr<AstNode> inc_expr,
+				std::unique_ptr<AstNode> block)
 				: AstNode(location, module, AST_FOR_LOOP)
 			{
 				this->init_expr = std::move(init_expr);
 				this->cond_expr = std::move(cond_expr);
 				this->inc_expr = std::move(inc_expr);
-			}
-
-			void addStatement(std::unique_ptr<AstNode> statement)
-			{
-				statements.push_back(std::move(statement));
+				this->block = std::move(block);
 			}
 
 			std::string str()
@@ -791,6 +894,8 @@ namespace zenith
 				result += cond_expr->str();
 				result += "\n";
 				result += inc_expr->str();
+				result += "\n";
+				result += block->str();
 
 				indentLevel--;
 

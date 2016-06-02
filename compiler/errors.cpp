@@ -28,22 +28,31 @@ namespace zenith
 			{ UNDECLARED_IDENTIFIER, "Identifier '%' has not been declared"},
 			{ EXPECTED_IDENTIFIER, "Expected an identifier" },
 			{ AMBIGUOUS_IDENTIFIER, "Identifier '%' is ambiguous"},
+			{ INVALID_CONSTRUCTOR, "Invalid constructor"},
+			{ UNKNOWN_CLASS_TYPE, "Unknown class type, '%'"},
 			{ EXPECTED_TOKEN, "Expected '%'" },
 			{ UNEXPECTED_END_OF_FILE, "Unexpected end of file" },
 			{ EXPECTED_MODULE_DECLARATION, "Expected 'module' declaration" },
 			{ MODULE_NOT_FOUND, "Module '%' could not be found" },
-			{ IMPORT_OUTSIDE_GLOBAL, "Import not allowed outside of global scope"}
+			{ MODULE_ALREADY_DEFINED, "Module '%' has already been defined" },
+			{ IMPORT_OUTSIDE_GLOBAL, "Import not allowed outside of global scope"},
+			{ SELF_NOT_DEFINED, "'self' not allowed outside of a class" }
 		};
 
 		void Error::display()
 		{
 			std::cout <<
-				"Error on line " <<
+				"\tLn " <<
 				(location.line + 1) <<
-				", column " <<
+				" Col " <<
 				(location.column + 1) <<
-				(location.file != "" ? (" in file '" + location.file + "'") : "") <<
+
 				": " << text << "\n";
+		}
+
+		bool Error::operator<(const Error &other)
+		{
+			return location.line < other.location.line;
 		}
 	}
 }

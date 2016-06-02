@@ -1,9 +1,9 @@
-#ifndef __ZENITH_RUNTIME_CLASS_H__
-#define __ZENITH_RUNTIME_CLASS_H__
-
-#include "../runtime/value.h"
+#ifndef __ZENITH_INTEROP_CLASS_H__
+#define __ZENITH_INTEROP_CLASS_H__
 
 #include <string>
+
+#include "../runtime/experimental/object.h"
 
 namespace zenith
 {
@@ -13,8 +13,8 @@ namespace zenith
 		class NativeObjectBase
 		{
 		public:
-			virtual ValuePtr &getProperty(const std::string &name) = NULL;
-			virtual void setProperty(const std::string &name, ValuePtr val) = NULL;
+			virtual ObjectPtr &getProperty(const std::string &name) = 0;
+			virtual void setProperty(const std::string &name, ObjectPtr val) = 0;
 		};
 
 		/* An instance of a native class */
@@ -23,7 +23,8 @@ namespace zenith
 		{
 		private:
 			T obj; // The actual native object
-			ValuePtrMap properties;
+			std::map<std::string, ObjectPtr> properties;
+
 		public:
 			T &getObject()
 			{
@@ -33,29 +34,29 @@ namespace zenith
 			template <typename P>
 			void bindProperty(const std::string &propName, P ptr)
 			{
-				ValuePtr prop = std::make_shared<Value>();
-				prop->setData(&(obj.*ptr));
+				auto prop = std::make_shared<Object>();
+				prop->any.assign(&(obj.*ptr));
 				properties[propName] = prop;
 			}
 
-			ValuePtr &getProperty(const std::string &name)
+			ObjectPtr &getProperty(const std::string &name)
 			{
 				if (properties.find(name) == properties.end())
 				{
 					std::string errMsg = "Property \"" + name + "\" does not exist!";
-					cout << errMsg << "\n";
+					std::cout << errMsg << "\n";
 					throw std::runtime_error(std::string(errMsg));
 				}
 
 				return properties.at(name);
 			}
 
-			void setProperty(const std::string &name, ValuePtr val)
+			void setProperty(const std::string &name, ObjectPtr val)
 			{
 				if (properties.find(name) == properties.end())
 				{
 					std::string errMsg = "Property \"" + name + "\" does not exist!";
-					cout << errMsg << "\n";
+					std::cout << errMsg << "\n";
 					throw std::runtime_error(std::string(errMsg));
 				}
 
@@ -66,7 +67,7 @@ namespace zenith
 		class NativePropertyBase
 		{
 		public:
-			virtual void bind(NativeObjectBase &nativeObj) = NULL;
+			virtual void bind(NativeObjectBase &nativeObj) = 0;
 		};
 
 		template <typename C, typename D>
@@ -92,7 +93,7 @@ namespace zenith
 		class NativeClassBase
 		{
 		public:
-			virtual ValuePtr createInstance() = NULL;
+			virtual ObjectPtr createInstance() = 0;
 		};
 
 		/* Defines a native class type. */
@@ -103,13 +104,14 @@ namespace zenith
 			std::vector<std::shared_ptr<NativePropertyBase>> propertyDefs;
 		public:
 			/* Create an instance of this class type. */
-			ValuePtr createInstance()
+			ObjectPtr createInstance()
 			{
-				ValuePtr val = std::make_shared<Value>();
+				auto val = std::make_shared<Object>();
 
 				auto nativeObjectPtr = std::make_shared<NativeObject<C>>();
 				auto nativeObjectBase = std::static_pointer_cast<NativeObjectBase>(nativeObjectPtr);
-				val->setData(nativeObjectBase, true);
+				val->any.assign(nativeObjectBase);
+				val->setNative(true);
 
 				for (int i = 0; i < propertyDefs.size(); i++)
 					propertyDefs[i]->bind(*nativeObjectBase.get());
@@ -124,27 +126,6 @@ namespace zenith
 				propertyDefs.push_back(std::static_pointer_cast<NativePropertyBase>(propertyPtr));
 
 				return this;
-			}
-		};
-
-		/* A type that has been defined in a script */
-		class ScriptedObject
-		{
-		private:
-			ValuePtrMap properties;
-		public:
-			ScriptedObject() { }
-
-			ValuePtrMap &getProperties() { return properties; }
-
-			void addProperty(const std::string &name, ValuePtr &object)
-			{
-				properties[name] = object;
-			}
-
-			ValuePtr &getProperty(const std::string &name)
-			{
-				return properties.at(name);
 			}
 		};
 	}

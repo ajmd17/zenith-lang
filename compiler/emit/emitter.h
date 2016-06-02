@@ -76,9 +76,10 @@ namespace zenith
 			void goToIfTrue(unsigned int blockId);
 			void goToIfFalse(unsigned int blockId);
 			void createClass(unsigned int blockId);
-			void callFunction(unsigned int blockId);
+			void callFunction(/*unsigned int blockId*/const std::string &name);
+			void invokeMethod(const std::string &name);
 			void callNativeFunction(unsigned int blockId, const std::string &name, unsigned int numArgs);
-			void createFunction(const std::string &funName, const std::string &returnType);
+			void createFunction(const std::string &funName);
 			void createNativeClassInstance(const std::string &className);
 			void leaveFunction();
 			void pushFunctionChain();

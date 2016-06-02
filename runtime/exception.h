@@ -19,6 +19,11 @@ namespace zenith
 				std::cin.get();
 				abort();
 			}
+
+			void display_if(bool b)
+			{
+				if (b) display();
+			}
 		};
 
 		struct BinaryOperatorException
@@ -38,6 +43,25 @@ namespace zenith
 			{
 			}
 		};
+
+		struct ConstValueChangedException
+			: public Exception
+		{
+			ConstValueChangedException()
+				: Exception({ "An object marked 'const' cannot be directly assigned" })
+			{
+			}
+		};
+
+		struct NullValueUsedException
+			: public Exception
+		{
+			NullValueUsedException()
+				: Exception({ "Cannot assign or access the 'null' value" })
+			{
+			}
+		};
+
 	}
 }
 

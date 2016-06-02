@@ -109,11 +109,23 @@ namespace zenith
 
 		struct CallFunction : public BytecodeCommand
 		{
-			unsigned int blockId;
+			/*unsigned int blockId;*/
+			std::string functionName;
 
-			CallFunction(unsigned int blockId) : BytecodeCommand(Instruction::CMD_CALL_FUNCTION)
+			CallFunction(/*unsigned int blockId*/ const std::string &name) : BytecodeCommand(Instruction::CMD_CALL_FUNCTION)
 			{
-				this->blockId = blockId;
+				//this->blockId = blockId;
+				this->functionName = name;
+			}
+		};
+
+		struct InvokeMethod : public BytecodeCommand
+		{
+			std::string functionName;
+
+			InvokeMethod(const std::string &name) : BytecodeCommand(Instruction::CMD_INVOKE_METHOD)
+			{
+				this->functionName = name;
 			}
 		};
 
@@ -144,12 +156,10 @@ namespace zenith
 		struct CreateFunction : public BytecodeCommand
 		{
 			std::string functionName;
-			std::string returnType;
 
-			CreateFunction(const std::string &functionName, const std::string &returnType) : BytecodeCommand(Instruction::CMD_CREATE_FUNCTION)
+			CreateFunction(const std::string &functionName) : BytecodeCommand(Instruction::CMD_CREATE_FUNCTION)
 			{
 				this->functionName = functionName;
-				this->returnType = returnType;
 			}
 		};
 
