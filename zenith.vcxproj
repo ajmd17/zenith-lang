@@ -152,8 +152,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="compiler\ast.h" />
-    <ClInclude Include="compiler\emit\default_handler.h" />
     <ClInclude Include="compiler\emit\bytecode.h" />
+    <ClInclude Include="compiler\emit\compiler2.h" />
+    <ClInclude Include="compiler\emit\default_handler.h" />
     <ClInclude Include="compiler\emit\emitter.h" />
     <ClInclude Include="compiler\errors.h" />
     <ClInclude Include="compiler\extra\zen2cpp\handler.h" />
@@ -185,6 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compiler\ast.cpp" />
+    <ClCompile Include="compiler\emit\compiler2.cpp" />
     <ClCompile Include="compiler\emit\default_handler.cpp" />
     <ClCompile Include="compiler\emit\emitter.cpp" />
     <ClCompile Include="compiler\errors.cpp" />
