@@ -10,21 +10,12 @@ namespace zenith
 	{
 		Object::~Object()
 		{
-			methods.clear();
 			members.clear();
 		}
 
-		void Object::addMethod(const std::string &name, FunctionPtr function)
+		void Object::invoke(VMState *state)
 		{
-			if (methods.find(name) != methods.end())
-				throw std::runtime_error("Method already exists");
-
-			methods.insert({name, function});
-		}
-
-		void Object::invokeMethod(VMState *state, const std::string &name)
-		{
-			methods[name]->invoke(state);
+			throw std::runtime_error("Not a function");
 		}
 
 		void Object::addMember(const std::string &name, ObjectPtr member)
@@ -50,9 +41,6 @@ namespace zenith
 
 			for (auto &&member : members)
 				result->addMember(member.first, member.second->clone());
-
-			for (auto &&method : methods)
-				result->addMethod(method.first, method.second);
 
 			result->any = any;
 

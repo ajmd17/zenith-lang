@@ -533,7 +533,16 @@ namespace zenith
 						// create class instance
 						self = { mangledClassInstance, it->second };
 						for (auto &&member : it->second->dataMembers)
+						{
+							if (member->nodeType == AST_VARIABLE_DECLARATION)
+							{
+								auto *varDecl = dynamic_cast<VariableDeclarationAst*>(member.get());
+								// testing adding object member
+								addCommand<AddMember>(varDecl->name);
+							}
+
 							accept(member.get());
+						}
 						self = { SELF_DEFAULT, nullptr };
 					}
 					else
@@ -632,7 +641,10 @@ namespace zenith
 
 				// Call the function. The variable name is passed so that it can be set to the result
 				if (!definition->isNative)
-					addCommand<CallFunction>(/*functionDefBlockIds[definition]*/ mangledName);
+				{
+					addCommand<LoadVariable>(mangledName);
+					addCommand<Invoke>();
+				}
 				else
 					addCommand<CallNativeFunction>(node->name,
 						functionDefBlockIds[definition],

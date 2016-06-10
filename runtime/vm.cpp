@@ -184,13 +184,17 @@ namespace zenith
 				if (state->readLevel == blockLevel)
 				{
 					// create function
-					if (globalFunctions.find(varNameStr) == globalFunctions.end())
+
+					/*if (globalFunctions.find(varNameStr) == globalFunctions.end())
 					{
 						auto fnPtr = std::make_shared<Function>(blockPos);
 						globalFunctions[varNameStr] = fnPtr;
 
 						debug_log("Created function: %s at position: %d", varNameStr.c_str(), blockPos);
-					}
+					}*/
+
+					debug_log("Creating function: %s", varNameStr.c_str());
+					module->getFrame(blockLevel).createFunction(varNameStr, blockPos);
 				}
 
 				break;
@@ -348,14 +352,8 @@ namespace zenith
 
 				break;
 			}
-			case Instruction::CMD_CALL_FUNCTION:
+			case Instruction::CMD_ADD_MEMBER:
 			{
-				/*int32_t blockId;
-				if (state->readLevel == blockLevel)
-					state->stream->read(&blockId);
-				else
-					state->stream->skip(sizeof(int32_t));*/
-
 				int32_t nameLen;
 				state->stream->read(&nameLen);
 
@@ -373,28 +371,17 @@ namespace zenith
 
 				if (state->readLevel == blockLevel)
 				{
-					debug_log("Calling function: %s", nameStr.c_str());
+					debug_log("Add member: %s", nameStr.c_str());
 
-					if (globalFunctions.find(nameStr) == globalFunctions.end())
-						throw std::runtime_error("Function not defined");
+					auto object = module->getFrame(blockLevel).getEvaluator().getStack().top();
 
-					globalFunctions[nameStr]->invoke(state);
-
-					/*debug_log("Push position: %d", state->stream->position());
-					debug_log("Move to block: %d", blockId);
-
-					module->pushFunctionChain((std::streamoff)state->stream->position());
-
-					// move to block
-					state->readLevel++;
-					debug_log("Increase read level to: %d", state->readLevel);
-
-					state->stream->seek(module->getSavedPositions()[blockId]);*/
+					auto member = std::make_shared<Object>();
+					object->addMember(nameStr, member);
 				}
 
 				break;
 			}
-			case Instruction::CMD_INVOKE_METHOD:
+			case Instruction::CMD_LOAD_MEMBER:
 			{
 				int32_t nameLen;
 				state->stream->read(&nameLen);
@@ -413,10 +400,23 @@ namespace zenith
 
 				if (state->readLevel == blockLevel)
 				{
-					debug_log("Calling method function: %s", nameStr.c_str());
+					debug_log("Load member: %s", nameStr.c_str());
 
 					auto object = module->getFrame(blockLevel).getEvaluator().getStack().top();
-					object->invokeMethod(state, nameStr);
+
+					auto member = object->accessMember(nameStr);
+					module->getFrame(blockLevel).getEvaluator().loadObject(member);
+				}
+
+				break;
+			}
+			case Instruction::CMD_INVOKE:
+			{
+				if (state->readLevel == blockLevel)
+				{
+					auto object = module->getFrame(blockLevel).getEvaluator().getStack().top();
+					module->getFrame(blockLevel).getEvaluator().getStack().pop();
+					object->invoke(state);
 				}
 
 				break;

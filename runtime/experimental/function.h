@@ -3,13 +3,14 @@
 
 #include <memory>
 
+#include "object.h"
 #include "vm_state.h"
 
 namespace zenith
 {
 	namespace runtime
 	{
-		class Function
+		class Function : public Object
 		{
 		private:
 			unsigned long loc;

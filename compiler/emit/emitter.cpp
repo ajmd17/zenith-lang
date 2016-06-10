@@ -83,17 +83,24 @@ namespace zenith
 
 						break;
 					}
-					case Instruction::CMD_CALL_FUNCTION:
+					case Instruction::CMD_ADD_MEMBER:
 					{
-						auto cmd = std::static_pointer_cast<CallFunction>(commandList[i]);
-						this->callFunction(/*cmd->blockId*/cmd->functionName);
+						auto cmd = std::static_pointer_cast<AddMember>(commandList[i]);
+						this->addMember(cmd->name);
 
 						break;
 					}
-					case Instruction::CMD_INVOKE_METHOD:
+					case Instruction::CMD_LOAD_MEMBER:
 					{
-						auto cmd = std::static_pointer_cast<InvokeMethod>(commandList[i]);
-						this->invokeMethod(cmd->functionName);
+						auto cmd = std::static_pointer_cast<LoadMember>(commandList[i]);
+						this->loadMember(cmd->name);
+
+						break;
+					}
+					case Instruction::CMD_INVOKE:
+					{
+						auto cmd = std::static_pointer_cast<Invoke>(commandList[i]);
+						this->invoke();
 
 						break;
 					}
@@ -525,12 +532,11 @@ namespace zenith
 			this->filestream.write(className.c_str(), classNameLen);
 		}
 
-		void Emitter::callFunction(const std::string &name/*unsigned int blockId*/)
+		void Emitter::addMember(const std::string &name)
 		{
-			int32_t type = Instruction::CMD_CALL_FUNCTION;
+			int32_t type = Instruction::CMD_ADD_MEMBER;
 
 			this->filestream.write((char*)&type, sizeof(int32_t));
-			//this->filestream.write((char*)&blockId, sizeof(int32_t));
 
 			int32_t nameLen = name.length() + 1;
 			this->filestream.write((char*)&nameLen, sizeof(int32_t));
@@ -538,9 +544,9 @@ namespace zenith
 			this->filestream.write(name.c_str(), nameLen);
 		}
 
-		void Emitter::invokeMethod(const std::string &name)
+		void Emitter::loadMember(const std::string &name)
 		{
-			int32_t type = Instruction::CMD_INVOKE_METHOD;
+			int32_t type = Instruction::CMD_LOAD_MEMBER;
 
 			this->filestream.write((char*)&type, sizeof(int32_t));
 
@@ -548,6 +554,13 @@ namespace zenith
 			this->filestream.write((char*)&nameLen, sizeof(int32_t));
 
 			this->filestream.write(name.c_str(), nameLen);
+		}
+
+		void Emitter::invoke()
+		{
+			int32_t type = Instruction::CMD_INVOKE;
+
+			this->filestream.write((char*)&type, sizeof(int32_t));
 		}
 
 		void Emitter::leaveFunction()

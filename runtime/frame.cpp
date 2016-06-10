@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "experimental/object.h"
+#include "experimental/function.h"
 
 #define VALUE_SEARCH_CHECKS 1
 
@@ -53,6 +54,18 @@ namespace zenith
 			#endif
 
 			auto local = std::make_shared<Object>();
+			locals.push_back({ identifier, local });
+			return local;
+		}
+
+		ObjectPtr StackFrame::createFunction(const std::string &identifier, unsigned long position)
+		{
+			#if VALUE_SEARCH_CHECKS
+			if (hasLocal(identifier))
+				throw std::runtime_error("Value already created");
+			#endif
+
+			auto local = std::make_shared<Function>(position);
 			locals.push_back({ identifier, local });
 			return local;
 		}

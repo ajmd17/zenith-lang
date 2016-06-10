@@ -38,6 +38,7 @@ namespace zenith
 			bool hasLocal(const std::string &identifier);
 			ObjectPtr &getLocal(const std::string &identifier);
 			ObjectPtr createLocal(const std::string &identifier);
+			ObjectPtr createFunction(const std::string &identifier, unsigned long position);
 			void clearLocal(const std::string &identifier);
 			void clearLocal(ObjectPtr &val);
 			void deleteLocal(const std::string &identifier);

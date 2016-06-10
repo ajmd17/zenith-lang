@@ -107,25 +107,30 @@ namespace zenith
 			}
 		};
 
-		struct CallFunction : public BytecodeCommand
+		struct AddMember : public BytecodeCommand
 		{
-			/*unsigned int blockId;*/
-			std::string functionName;
+			std::string name;
 
-			CallFunction(/*unsigned int blockId*/ const std::string &name) : BytecodeCommand(Instruction::CMD_CALL_FUNCTION)
+			AddMember(const std::string &name) : BytecodeCommand(Instruction::CMD_ADD_MEMBER)
 			{
-				//this->blockId = blockId;
-				this->functionName = name;
+				this->name = name;
 			}
 		};
 
-		struct InvokeMethod : public BytecodeCommand
+		struct LoadMember : public BytecodeCommand
 		{
-			std::string functionName;
+			std::string name;
 
-			InvokeMethod(const std::string &name) : BytecodeCommand(Instruction::CMD_INVOKE_METHOD)
+			LoadMember(const std::string &name) : BytecodeCommand(Instruction::CMD_LOAD_MEMBER)
 			{
-				this->functionName = name;
+				this->name = name;
+			}
+		};
+
+		struct Invoke : public BytecodeCommand
+		{
+			Invoke() : BytecodeCommand(Instruction::CMD_INVOKE)
+			{
 			}
 		};
 
